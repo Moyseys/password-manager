@@ -1,0 +1,91 @@
+<div class="settings">
+  <div class="settings__header">
+    <h1 class="settings__title">Configurações</h1>
+    <p class="settings__subtitle">Configure suas preferências e segurança</p>
+  </div>
+
+  <div class="settings__content">
+    <div class="settings__sections">
+      <!-- Seção Geral -->
+      <div class="settings__section">
+        <h2 class="settings__section-title">
+          <i class="lucide icon-user" aria-hidden="true"></i>
+          Geral
+        </h2>
+        <div class="settings__section-content">
+          <div class="settings__item">
+            <label class="settings__label">Tema</label>
+            <select class="settings__select">
+              <option value="light">Claro</option>
+              <option value="dark">Escuro</option>
+              <option value="auto">Automático</option>
+            </select>
+          </div>
+
+          <div class="settings__item">
+            <label class="settings__label">Idioma</label>
+            <select class="settings__select">
+              <option value="pt-BR">Português (Brasil)</option>
+              <option value="en-US">English (US)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção Segurança -->
+      <div class="settings__section">
+        <h2 class="settings__section-title">
+          <i class="lucide icon-shield" aria-hidden="true"></i>
+          Segurança
+        </h2>
+        <div class="settings__section-content">
+          <div class="settings__item">
+            <label class="settings__label">Timeout de sessão</label>
+            <select class="settings__select">
+              <option value="15">15 minutos</option>
+              <option value="30">30 minutos</option>
+              <option value="60">1 hora</option>
+              <option value="never">Nunca</option>
+            </select>
+          </div>
+
+          <div class="settings__item">
+            <div class="settings__toggle">
+              <input type="checkbox" id="two-factor" class="settings__checkbox" />
+              <label for="two-factor" class="settings__toggle-label">
+                Autenticação de dois fatores
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção Backup -->
+      <div class="settings__section">
+        <h2 class="settings__section-title">
+          <i class="lucide icon-database" aria-hidden="true"></i>
+          Backup e Sincronização
+        </h2>
+        <div class="settings__section-content">
+          <div class="settings__item">
+            <div class="settings__toggle">
+              <input type="checkbox" id="auto-backup" class="settings__checkbox" />
+              <label for="auto-backup" class="settings__toggle-label"> Backup automático </label>
+            </div>
+          </div>
+
+          <div class="settings__actions">
+            <button class="settings__btn settings__btn--secondary">
+              <i class="lucide icon-download" aria-hidden="true"></i>
+              Exportar Dados
+            </button>
+            <button class="settings__btn settings__btn--secondary">
+              <i class="lucide icon-upload" aria-hidden="true"></i>
+              Importar Dados
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

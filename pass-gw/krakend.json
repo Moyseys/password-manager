@@ -1,0 +1,83 @@
+{
+  "$schema": "https://www.krakend.io/schema/v3.json",
+  "version": 3,
+  "name": "krakend",
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": ["*"],
+      "allow_methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS",
+        "HEAD"
+      ],
+      "allow_headers": ["*"],
+      "expose_headers": ["*"],
+      "allow_credentials": true,
+      "max_age": "24h",
+      "debug": true,
+      "auto_options": true
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/pass-api/v1/auth",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://pass-api:8080"],
+          "url_pattern": "/api/v1/auth",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/pass-api/v1/secrets",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://pass-api:8080"],
+          "url_pattern": "/api/v1/secrets",
+          "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/pass-api/v1/secrets",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://pass-api:8080"],
+          "url_pattern": "/api/v1/secrets",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/pass-api/v1/secrets/{secretId}",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://pass-api:8080"],
+          "url_pattern": "/api/v1/secrets/{secretId}",
+          "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    }
+  ]
+}

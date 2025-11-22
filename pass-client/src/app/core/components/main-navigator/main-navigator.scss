@@ -1,0 +1,321 @@
+@import '../../statics/variables.statics.scss';
+
+.layout {
+  display: grid;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 0 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns var(--nav-transition-normal);
+
+  &:has(.sidebar--open) {
+    grid-template-columns: var(--nav-sidebar-width) 1fr;
+  }
+}
+
+// Header
+.header {
+  grid-area: header;
+  background-color: var(--nav-bg-primary);
+  border-bottom: 1px solid var(--nav-border-light);
+  box-shadow: var(--nav-shadow);
+  position: sticky;
+  top: 0;
+  z-index: var(--nav-z-header);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    max-width: 100%;
+  }
+
+  &__menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    border-radius: 0.375rem;
+    color: var(--nav-text-secondary);
+    cursor: pointer;
+    transition: all var(--nav-transition-fast);
+
+    &:hover {
+      background-color: var(--nav-bg-hover);
+      color: var(--nav-text-primary);
+    }
+
+    &:focus {
+      outline: 2px solid var(--nav-focus-ring);
+      outline-offset: 2px;
+    }
+
+    .lucide {
+      font-size: 24px;
+      display: block;
+    }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--nav-text-primary);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+// Sidebar
+.sidebar {
+  grid-area: sidebar;
+  background-color: var(--nav-bg-sidebar);
+  color: var(--nav-text-white);
+  width: var(--nav-sidebar-width);
+  transform: translateX(-100%);
+  transition: transform var(--nav-transition-normal);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: var(--nav-z-sidebar);
+  overflow-y: auto;
+
+  &--open {
+    transform: translateX(0);
+  }
+
+  &__header {
+    padding: 1.5rem 1rem 1rem;
+    border-bottom: 1px solid var(--nav-border-sidebar);
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--nav-text-gray-50);
+    margin: 0;
+  }
+
+  &__nav {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+  }
+
+  &__item {
+    margin: 0;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--nav-text-light);
+    text-decoration: none;
+    transition: all var(--nav-transition-fast);
+    border-left: 3px solid transparent;
+
+    &:hover {
+      background-color: var(--nav-bg-sidebar-hover);
+      color: var(--nav-text-white);
+    }
+
+    &--active {
+      background-color: var(--nav-bg-active);
+      color: var(--nav-text-white);
+      border-left-color: var(--nav-border-active);
+    }
+
+    .lucide {
+      font-size: 20px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+  }
+
+  // Overlay para mobile
+  &__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--nav-overlay);
+    z-index: var(--nav-z-overlay);
+    cursor: pointer;
+  }
+}
+
+// Main content
+.main {
+  grid-area: main;
+  padding: 2rem 1.5rem;
+  background-color: var(--nav-bg-secondary);
+  min-height: 0;
+  transition: margin-left var(--nav-transition-normal);
+
+  &__content {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
+
+// Footer
+.footer {
+  grid-area: footer;
+  background-color: var(--nav-bg-primary);
+  border-top: 1px solid var(--nav-border-light);
+  transition: margin-left var(--nav-transition-normal);
+
+  &__content {
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+
+  &__text {
+    margin: 0;
+    color: var(--nav-text-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .layout {
+    grid-template-columns: var(--nav-sidebar-width) 1fr;
+
+    &:not(:has(.sidebar--open)) {
+      grid-template-columns: 0 1fr;
+    }
+  }
+
+  .sidebar {
+    position: static;
+    transform: none;
+    height: auto;
+
+    &:not(.sidebar--open) {
+      transform: translateX(-100%);
+    }
+
+    &__overlay {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .header {
+    &__title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .main {
+    padding: 1rem;
+  }
+
+  .footer {
+    &__content {
+      padding: 0.75rem 1rem;
+    }
+
+    &__text {
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// Estados de foco e acessibilidade
+@media (prefers-reduced-motion: reduce) {
+  .layout,
+  .sidebar,
+  .main,
+  .footer {
+    transition: none;
+  }
+}
+
+// Dark mode support (opcional)
+@media (prefers-color-scheme: dark) {
+  :host {
+    // Override das variáveis para dark mode
+    --nav-bg-primary: var(--nav-gray-900);
+    --nav-bg-secondary: var(--nav-slate-900);
+    --nav-text-primary: var(--nav-text-gray-50);
+    --nav-text-secondary: var(--nav-gray-400);
+    --nav-border-light: var(--nav-gray-700);
+    --nav-bg-hover: var(--nav-gray-700);
+  }
+
+  .header {
+    color: var(--nav-text-white);
+
+    &__title {
+      color: var(--nav-text-gray-50);
+    }
+
+    &__menu-btn {
+      color: var(--nav-text-light);
+
+      &:hover {
+        background-color: var(--nav-bg-hover);
+        color: var(--nav-text-gray-50);
+      }
+    }
+  }
+
+  .main {
+    color: var(--nav-slate-100);
+  }
+
+  .footer {
+    &__text {
+      color: var(--nav-gray-400);
+    }
+  }
+}
+
+/*
+ * DOCUMENTAÇÃO DAS VARIÁVEIS DE COR
+ *
+ * Para personalizar as cores do Main Navigator, você pode sobrescrever as
+ * variáveis CSS no componente pai ou globalmente:
+ *
+ * Exemplo de personalização:
+ *
+ * app-main-navigator {
+ *   --nav-primary: #10b981; // Verde em vez de azul
+ *   --nav-bg-sidebar: #1e293b; // Sidebar mais escura
+ *   --nav-text-primary: #0f172a; // Texto mais escuro
+ * }
+ *
+ * Variáveis principais disponíveis:
+ * - Cores base: --nav-white, --nav-gray-[50-900], --nav-slate-[100,900]
+ * - Texto: --nav-text-[primary,secondary,light,white,gray-50]
+ * - Ações: --nav-primary, --nav-primary-light, --nav-primary-dark
+ * - Fundos: --nav-bg-[primary,secondary,sidebar,hover,sidebar-hover,active]
+ * - Bordas: --nav-border-[light,sidebar,active]
+ * - Efeitos: --nav-overlay, --nav-shadow, --nav-shadow-lg
+ * - Transições: --nav-transition-[fast,normal]
+ * - Dimensões: --nav-sidebar-width, --nav-z-[header,sidebar,overlay]
+ */

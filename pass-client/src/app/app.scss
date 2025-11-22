@@ -1,0 +1,13 @@
+// Reset básico e estilos globais para o app principal
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+}
+
+// Garantir que o main navigator ocupe toda a tela
+app-main-navigator {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

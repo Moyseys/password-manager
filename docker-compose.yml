@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: password_manager
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pass-api:
+    build:
+      context: ./pass-api
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:8080"
+    restart: unless-stopped
+    # Load environment variables from the project .env file
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__Postgres=${CONNECTIONSTRING_POSTGRES}
+      - JwtSettings__SecretKey=${JWT_SECRET}
+
+  pass-gw:
+    build:
+      context: ./pass-gw
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # gateway acessível na porta 8080 do host
+    restart: unless-stopped
+    volumes:
+      - ./pass-gw/krakend.json:/etc/krakend/krakend.json:ro
+
+volumes:
+  db-data:

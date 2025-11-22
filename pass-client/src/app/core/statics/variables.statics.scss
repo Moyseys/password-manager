@@ -1,0 +1,60 @@
+:root {
+  // Cores base
+  --nav-white: #ffffff;
+  --nav-gray-50: #f9fafb;
+  --nav-gray-100: #f3f4f6;
+  --nav-gray-200: #e5e7eb;
+  --nav-gray-400: #9ca3af;
+  --nav-gray-500: #6b7280;
+  --nav-gray-600: #374151;
+  --nav-gray-700: #374151;
+  --nav-gray-800: #1f2937;
+  --nav-gray-900: #111827;
+  --nav-slate-900: #0f172a;
+  --nav-slate-100: #f1f5f9;
+
+  // Cores de texto
+  --nav-text-primary: var(--nav-gray-900);
+  --nav-text-secondary: var(--nav-gray-500);
+  --nav-text-light: #d1d5db;
+  --nav-text-white: var(--nav-white);
+  --nav-text-gray-50: var(--nav-gray-50);
+
+  // Cores de ação/interação
+  --nav-primary: #3b82f6;
+  --nav-primary-light: #60a5fa;
+  --nav-primary-dark: #2563eb;
+
+  // Estados de hover/focus
+  --nav-hover-opacity: 0.8;
+  --nav-focus-ring: var(--nav-primary);
+
+  // Cores de fundo
+  --nav-bg-primary: var(--nav-white);
+  --nav-bg-secondary: var(--nav-gray-50);
+  --nav-bg-sidebar: var(--nav-gray-800);
+  --nav-bg-hover: var(--nav-gray-100);
+  --nav-bg-sidebar-hover: var(--nav-gray-700);
+  --nav-bg-active: var(--nav-primary);
+
+  // Cores de borda
+  --nav-border-light: var(--nav-gray-200);
+  --nav-border-sidebar: var(--nav-gray-700);
+  --nav-border-active: var(--nav-primary-light);
+
+  // Efeitos
+  --nav-overlay: rgba(0, 0, 0, 0.5);
+  --nav-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  --nav-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+  // Transições
+  --nav-transition-fast: 0.2s ease;
+  --nav-transition-normal: 0.3s ease;
+
+  // Dimensões
+  --nav-sidebar-width: 280px;
+  --nav-header-height: auto;
+  --nav-z-header: 40;
+  --nav-z-sidebar: 50;
+  --nav-z-overlay: 45;
+}

@@ -1,0 +1,35 @@
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+*.rsuser
+
+# Rider
+.idea/
+*.sln.iml
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

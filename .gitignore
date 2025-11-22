@@ -1,0 +1,64 @@
+# -------------------------
+# Environment / secrets
+# -------------------------
+# Do NOT commit environment files with secrets. Keep local copies only.
+/pass-api/.env
+/pass-api/.env.*
+/.env
+/.env.prod
+
+# -------------------------
+# Node / Angular
+# -------------------------
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+dist-*/
+out-tsc/
+/.angular/
+
+# temp
+tmp/
+temp/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# coverage
+coverage/
+
+# -------------------------
+# .NET / Visual Studio
+# -------------------------
+# Build Folders
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider/IDE
+.idea/
+
+# Misc
+*.log
+*.cache
+.DS_Store
+
+# -------------------------
+# Optional local excludes
+# -------------------------
+# Add any other local-only files here or to .git/info/exclude
+dist/
+out/
+.idea/

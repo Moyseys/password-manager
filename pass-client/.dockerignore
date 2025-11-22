@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist/
+.angular/
+.cache/
+
+# Testing
+coverage/
+.nyc_output/
+*.spec.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+.env
+.env.local
+.DS_Store
+*.log
