@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -42,7 +43,7 @@ public class AuthService
 
     string generateTokenJwt(User user)
     {
-        var SecretKey = _jwtSettings["SecretKey"];
+        var SecretKey = _jwtSettings["SecretKey"] ?? throw new InvalidDataException("Invalid JWT credentials");
         var Issuer = this._jwtSettings["Issuer"];
         var Audience = this._jwtSettings["Audience"];
         DateTime Expiration = DateTime.UtcNow.AddHours(1);
@@ -68,13 +69,13 @@ public class AuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public ClaimsPrincipal ValidateToken(string Token)
+    public ClaimsPrincipal? ValidateToken(string Token)
     {
         if (Token == null) return null;
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = _jwtSettings["SecretKey"];
+            var secretKey = _jwtSettings["SecretKey"] ?? throw new InvalidDataException("Invalid JWT credentials");
             var key = Encoding.UTF8.GetBytes(secretKey);
 
             var validationParameters = new TokenValidationParameters

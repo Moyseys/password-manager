@@ -24,7 +24,7 @@ public class UserResitory
 
     public async Task AddAsync(User u)
     {
-        context.User.AddAsync(u);
+        await context.User.AddAsync(u);
         await context.SaveChangesAsync();
     }
 }

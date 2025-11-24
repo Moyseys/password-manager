@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using Microsoft.VisualBasic;
 
 namespace PasswordManager.Utils;
 
