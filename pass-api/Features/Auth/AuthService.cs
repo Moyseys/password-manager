@@ -77,7 +77,7 @@ public class AuthService
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var secretKey = _jwtSettings["SecretKey"];
-            var key = System.Text.Encoding.UTF8.GetBytes(secretKey);
+            var key = Encoding.UTF8.GetBytes(secretKey);
 
             var validationParameters = new TokenValidationParameters
             {

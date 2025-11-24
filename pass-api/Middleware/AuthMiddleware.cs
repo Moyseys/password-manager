@@ -21,8 +21,6 @@ class AuthMiddleware
         if (!context.Request.Headers.TryGetValue(AuthorizationHeader, out var token))
         {
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            context.Response.ContentType = "application/json";
-
             await context.Response.WriteAsync(JsonSerializer.Serialize(msg));
             return;
         }
@@ -31,7 +29,6 @@ class AuthMiddleware
         if (principal == null)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(msg));
             return;
         }
