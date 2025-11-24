@@ -1,0 +1,117 @@
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--nav-bg-primary);
+  border: 1px solid var(--nav-border-light);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  gap: 1rem;
+
+  > div:first-child {
+    flex: 1;
+    text-align: left;
+
+    span {
+      font-size: 0.875rem;
+      color: var(--nav-text-secondary);
+    }
+  }
+
+  > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    span.lucide {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      color: var(--nav-text-primary);
+      transition: opacity var(--nav-transition-fast);
+
+      &:hover:not(:disabled) {
+        opacity: 0.7;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    span:not(.lucide) {
+      font-size: 0.875rem;
+      color: var(--nav-text-secondary);
+    }
+
+    input {
+      width: 60px;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--nav-border-light);
+      border-radius: 0.25rem;
+      background-color: var(--nav-bg-primary);
+      color: var(--nav-text-primary);
+      text-align: center;
+      font-size: 0.875rem;
+
+      &:focus {
+        outline: 2px solid var(--nav-primary);
+        border-color: var(--nav-primary);
+      }
+    }
+  }
+
+  > div:nth-child(3) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    span {
+      font-size: 0.875rem;
+      color: var(--nav-text-secondary);
+    }
+
+    select {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--nav-border-light);
+      border-radius: 0.25rem;
+      background-color: var(--nav-bg-primary);
+      color: var(--nav-text-primary);
+      font-size: 0.875rem;
+
+      &:focus {
+        outline: 2px solid var(--nav-primary);
+        border-color: var(--nav-primary);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem;
+
+    > div {
+      width: 100%;
+      justify-content: center;
+    }
+
+    > div:first-child {
+      text-align: center;
+    }
+
+    > div:nth-child(2) {
+      span:not(.lucide) {
+        display: none;
+      }
+    }
+
+    > div:nth-child(3) {
+      span {
+        display: none;
+      }
+    }
+  }
+}

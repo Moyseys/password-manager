@@ -5,10 +5,20 @@ import { SecretListInterface } from '../../core/interfaces/secretList.interface'
 import { SecretInterface } from '../../core/interfaces/secret.interface';
 import { PasswordDetailModal } from './password-detail-modal/password-detail-modal';
 import { PasswordCreate } from './password-create/password-create';
+import { PaginationComponent } from 'src/app/core/components/pagination/pagination.component';
+import { ReactiveFormsModule, ɵInternalFormsSharedModule } from '@angular/forms';
+import { PaginationUtils } from 'src/app/core/utils/pagination.util';
 
 @Component({
   selector: 'app-passwords',
-  imports: [CommonModule, PasswordDetailModal, PasswordCreate],
+  imports: [
+    CommonModule,
+    PasswordDetailModal,
+    PasswordCreate,
+    PaginationComponent,
+    ɵInternalFormsSharedModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './passwords.html',
   styleUrl: './passwords.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,15 +31,23 @@ export class Passwords implements OnInit {
   isLoading = signal(false);
   error = signal<string | null>(null);
 
+  pagination = new PaginationUtils();
+
   selectedSecret = signal<SecretInterface | null>(null);
   isModalOpen = signal(false);
   isLoadingDetails = signal(false);
   isCreateFormOpen = signal(false);
+
   openCreateForm() {
     this.isCreateFormOpen.set(true);
   }
 
   ngOnInit() {
+    this.pagination.form.valueChanges.subscribe((pagination) => {
+      console.log(pagination);
+      if (!pagination) return;
+      this.loadSecrets();
+    });
     this.loadSecrets();
   }
 
@@ -37,8 +55,10 @@ export class Passwords implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.secretsApi.get(1, 100, 'title,asc').subscribe({
+    const { page, size } = this.pagination.getValue();
+    this.secretsApi.get(page, size, 'title,asc').subscribe({
       next: (response) => {
+        this.pagination.setPeagleableValue(response);
         this.secrets.set(response.items);
         this.isLoading.set(false);
       },

@@ -1,0 +1,41 @@
+@if (paginationState()) {
+<footer>
+  <div>
+    <span
+      >Mostrando {{ paginationState().size }} - {{ paginationState().page }} de
+      {{ paginationState().totalItems }}</span
+    >
+  </div>
+  <div>
+    <button
+      class="lucide icon-chevron-left"
+      [disabled]="page <= 1"
+      (click)="previusPage()"
+    ></button>
+    <span>Página</span>
+    <input
+      type="number"
+      step="1"
+      [value]="paginationState().page"
+      (keydown.enter)="goToPage(+$event.target.value)"
+      (blur)="goToPage(+$event.target.value)"
+    />
+    <!-- ? + é usado para indicar que o valor é number  -->
+    <button
+      class="lucide icon-chevron-right"
+      [disabled]="page >= paginationState().totalPages"
+      (click)="nextPage()"
+    ></button>
+  </div>
+
+  <div>
+    <span>Resultados por página</span>
+    <!-- ? O + e o $any é utilizado para converter o valor para any e dps para number  -->
+    <select [value]="paginationState().size" (change)="changeSize(+$any($event.target).value)">
+      @for (size of sizeOptions; track size) {
+      <option [value]="size" [selected]="size === paginationState().size">{{ size }}</option>
+      }
+    </select>
+  </div>
+</footer>
+}
