@@ -25,14 +25,11 @@ public class AuthService
     public async Task<LoginResponseDto> token(LoginRequestDto payload)
     {
         if (string.IsNullOrEmpty(payload.Email) || string.IsNullOrEmpty(payload.Password))
-        {
             throw new InvalidDataException("E-mail ou Senha inválida!");
-        }
+
         User? user = await userResitory.GetUserByEmailAsync(payload.Email);
-        if (user == null)
-        {
-            throw new InvalidDataException("E-mail não cadastrado!");
-        }
+        
+        if (user == null) throw new InvalidDataException("E-mail não cadastrado!");
 
         return new LoginResponseDto
         {
@@ -73,6 +70,7 @@ public class AuthService
 
     public ClaimsPrincipal ValidateToken(string Token)
     {
+        if (Token == null) return null;
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -91,7 +89,7 @@ public class AuthService
             var principal = tokenHandler.ValidateToken(Token, validationParameters, out var validatedToken);
             return principal;
         }
-        catch (System.Exception)
+        catch (Exception)
         {
             return null;
         }

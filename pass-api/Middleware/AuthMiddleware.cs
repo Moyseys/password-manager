@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using PasswordManager.Features.Auth;
 
 namespace PasswordManager.Middleware;
@@ -7,7 +6,7 @@ namespace PasswordManager.Middleware;
 class AuthMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly String AuthorizationHeader = "Authorization";
+    private readonly string AuthorizationHeader = "Authorization";
 
     public AuthMiddleware(RequestDelegate next)
     {
@@ -16,26 +15,27 @@ class AuthMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var msg = new { message = "Token de Authenticação inválido!" };
+        try
+        {
         var authService = context.RequestServices.GetRequiredService<AuthService>();
-        if (!context.Request.Headers.TryGetValue(AuthorizationHeader, out var token))
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            await context.Response.WriteAsync(JsonSerializer.Serialize(msg));
-            return;
-        }
-        token = token.ToString().Substring("Bearer".Length).Trim();
-        var principal = authService.ValidateToken(token);
+        if (!context.Request.Headers.TryGetValue(AuthorizationHeader, out var token))        
+            throw new InvalidDataException($"Not found Header {AuthorizationHeader}");
+
+        token = token.ToString().Substring("Bearer".Length).Trim() ?? throw new InvalidDataException("Invalid token!"); 
+        
+        var principal = authService.ValidateToken(token!);
         if (principal == null)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            await context.Response.WriteAsync(JsonSerializer.Serialize(msg));
-            return;
-        }
+            throw new InvalidDataException("InvalidToken");
+            
         context.User = principal;
 
         await _next(context);
+        }
+        catch (InvalidDataException error)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            await context.Response.WriteAsJsonAsync(error.Message);
+            return;
+        }
     }
 }
-
-//Todo expiração do token
