@@ -37,8 +37,9 @@ export class AuthService extends BaseHttpClientService {
   async login(email: string, password: string) {
     this.http.post<LoginResponse>(`${this.resource}/auth`, { email, password }).subscribe({
       next: (res: LoginResponse) => {
-        //TODO alinhar com a API o tempo de expiração do token
-        CookieService.setCookie(environment.cookies.token, res.token, 1);
+        const dateExpires = new Date(Date.now());
+        dateExpires.setHours(dateExpires.getHours() + 1);
+        CookieService.setCookie(environment.cookies.token, res.token, dateExpires.toUTCString());
         this.token = res.token;
         window.location.href = this.redirectUrl;
       },
