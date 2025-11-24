@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PasswordManager.Features.Auth.Dtos.Reponses;
 using PasswordManager.Features.Auth.Dtos.Requests;

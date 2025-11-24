@@ -1,4 +1,3 @@
-using System;
 using System.Linq.Expressions;
 using PasswordManager.DAL;
 using PasswordManager.DAL.Repositories;
@@ -20,9 +19,9 @@ public class SecretService
 
     public SecretService(SecretRepository secretRepository,  SecretKeyRepository secretKeyRepository, PasswordManagerDbContext context)
     {
-        this._secretRepository = secretRepository;
-        this._secretKeyRepository = secretKeyRepository;
-        this._context = context;
+        _secretRepository = secretRepository;
+        _secretKeyRepository = secretKeyRepository;
+        _context = context;
     }
 
     public async Task CreateSecret(SecretRequestCreateDto payload, Guid userId)
