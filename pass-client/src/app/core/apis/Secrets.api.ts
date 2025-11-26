@@ -20,7 +20,8 @@ export class SecretsApi extends BaseHttpClientService {
     return this.http.post(this.resource, data);
   }
 
-  getById(secretId: string) {
-    return this.http.get<SecretInterface>(`${this.resource}/${secretId}`);
+  getById(secretId: string, masterPassword: string) {
+    const body = { masterPassword };
+    return this.http.post<SecretInterface>(`${this.resource}/${secretId}`, body);
   }
 }

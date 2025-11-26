@@ -74,7 +74,15 @@ export class Passwords implements OnInit {
     this.isLoadingDetails.set(true);
     this.isModalOpen.set(true);
 
-    this.secretsApi.getById(secretId).subscribe({
+    const master = window.prompt('Digite sua Master Password para visualizar a senha:');
+    if (master === null) {
+      // User cancelled the prompt
+      this.isLoadingDetails.set(false);
+      this.isModalOpen.set(false);
+      return;
+    }
+
+    this.secretsApi.getById(secretId, master).subscribe({
       next: (secret) => {
         this.selectedSecret.set(secret);
         this.isLoadingDetails.set(false);
