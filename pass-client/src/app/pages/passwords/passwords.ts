@@ -34,6 +34,7 @@ export class Passwords implements OnInit {
   pagination = new PaginationUtils();
 
   selectedSecret = signal<SecretInterface | null>(null);
+  selectedSecretMaster = signal<string | null>(null);
   isModalOpen = signal(false);
   isLoadingDetails = signal(false);
   isCreateFormOpen = signal(false);
@@ -82,6 +83,8 @@ export class Passwords implements OnInit {
       return;
     }
 
+    this.selectedSecretMaster.set(master);
+
     this.secretsApi.getById(secretId, master).subscribe({
       next: (secret) => {
         this.selectedSecret.set(secret);
@@ -98,5 +101,12 @@ export class Passwords implements OnInit {
   closeModal() {
     this.isModalOpen.set(false);
     this.selectedSecret.set(null);
+    this.selectedSecretMaster.set(null);
+  }
+
+  onSecretUpdated(secret: SecretInterface) {
+    // Update local selection and refresh list
+    this.selectedSecret.set(secret);
+    this.loadSecrets();
   }
 }

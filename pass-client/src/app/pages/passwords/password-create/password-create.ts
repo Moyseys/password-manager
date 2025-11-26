@@ -18,6 +18,7 @@ export class PasswordCreate {
     }
   }
   close = output<void>();
+  created = output<void>();
   private readonly fb = inject(FormBuilder);
   private readonly secretsApi = inject(SecretsApi);
 
@@ -37,22 +38,33 @@ export class PasswordCreate {
     this.error = null;
     this.success = false;
     const { title, username, password } = this.form.value;
+    const master = window.prompt('Digite sua Master Password para salvar o segredo:');
+    if (master === null) return; // user cancelled prompt
+
+    this.isLoading = true;
+
     this.secretsApi
-      .create({
-        title: title ?? '',
-        username: username ?? '',
-        password: password ?? '',
-      })
+      .create(
+        {
+          title: title ?? '',
+          username: username ?? '',
+          password: password ?? '',
+        },
+        master
+      )
       .subscribe({
         next: () => {
           this.isLoading = false;
           this.success = true;
           this.form.reset();
+          window.alert('Senha cadastrada com sucesso!');
+          this.created.emit();
         },
         error: (err) => {
           this.isLoading = false;
           this.error = 'Erro ao cadastrar senha';
           console.error(err);
+          window.alert('Erro ao cadastrar senha. Tente novamente.');
         },
       });
   }
