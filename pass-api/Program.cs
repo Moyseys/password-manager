@@ -9,6 +9,7 @@ using PasswordManager.Features.SecretKey;
 using PasswordManager.Features.Secrets;
 using PasswordManager.Features.Users.Services;
 using PasswordManager.Middleware;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,19 +37,36 @@ builder.Services.AddScoped<SecretKeyService>();
 //Entities
 builder.Services.AddScoped<PasswordHasher<User>>();
 
+//Doc
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 //TODO Adicionar Métodos para as rotas
 var publicRouter = new Dictionary<string, string[]>() {
     { "/api/v1/auth", ["POST"] },
-    { "/api/v1/users", ["POST"] } 
+    { "/api/v1/users", ["POST"] }
 };
 
 //Middlewares
 app.UseWhen(
     context =>
     {
-        if (publicRouter.TryGetValue(context.Request.Path, out var methods_path))
+        var path = context.Request.Path;
+
+        if (path.StartsWithSegments("/scalar") || 
+            path.StartsWithSegments("/openapi"))
+        {
+            return false; 
+        }
+
+        if (publicRouter.TryGetValue(path, out var methods_path))
         {   
             if (methods_path.Contains(context.Request.Method)) return false;
         }
