@@ -21,8 +21,13 @@ public class SecretRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<T?> GetSecretById<T>(Guid secretId, Expression<Func<Secret, T>> projection)
+    public async Task<T?> GetSecretById<T>(Guid secretId, Expression<Func<Secret, T>>? projection)
     {
         return await _context.Secret.Where((s) => s.Id == secretId).Select(projection).FirstOrDefaultAsync();
+    }
+
+    public async Task<Secret?> GetSecretById(Guid secretId)
+    {
+        return await _context.Secret.Where((s) => s.Id == secretId).FirstOrDefaultAsync();
     }
 }

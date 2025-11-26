@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         }
         catch (InvalidDataException e)
         {
-            return BadRequest($"Requisição inválida: {e.Message}");
+            return BadRequest(new { Message = $"Requisição inválida: {e.Message}"});
         }
     }
 

@@ -30,19 +30,26 @@ public class SecretController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] PaginationDto pagination)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User Id invalid");
-        var secrets = await _secretService.ListSecrets(Guid.Parse(userId), pagination);
-        return Ok(secrets);
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User Id invalid");
+            var secrets = await _secretService.ListSecrets(Guid.Parse(userId), pagination);
+            return Ok(secrets);            
+        }
+        catch (BadHttpRequestException error)
+        {
+            return BadRequest(new { message = error.Message});
+        }
     }
 
-    [HttpGet("{secretId}")]
-    public async Task<IActionResult> Show(string secretId)
+    [HttpPost("{secretId}")]
+    public async Task<IActionResult> Show(string secretId, [FromBody] SecretRequestShowDto payload)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User Id invalid");
 
-        return Ok(await _secretService.GetSecret(Guid.Parse(userId), Guid.Parse(secretId)));
+            return Ok(await _secretService.GetSecret(Guid.Parse(userId), Guid.Parse(secretId), payload));
         }
         catch (BadHttpRequestException error)
         {

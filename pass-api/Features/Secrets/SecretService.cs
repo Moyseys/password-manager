@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text;
 using PasswordManager.DAL;
 using PasswordManager.DAL.Repositories;
 using PasswordManager.Features.Secrets.Dtos.Requests;
@@ -26,13 +27,18 @@ public class SecretService
 
     public async Task CreateSecret(SecretRequestCreateDto payload, Guid userId)
     {
-        var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) ?? throw new ArgumentException("Chave secreta inválida");
+        var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) 
+            ?? throw new ArgumentException("Chave secreta inválida");
+        var masterPassDerived = DeriveHelper.RFC2898(payload.MasterPassword, userSecretKey.User.MasterPasswordSalt) 
+            ?? throw new ArgumentException("");
+        
+        var key = AESHelper.Decrypt(masterPassDerived, userSecretKey.Key);
 
         Secret secret = new Secret
         {
             Title = payload.Title,
             Username = payload.UserName,
-            Password = payload.Password = AESHelper.Encrypt(userSecretKey.Key, payload.Password),
+            Password = AESHelper.Encrypt(key, Encoding.UTF8.GetBytes(payload.Password)),
             UserId = userId
         };
 
@@ -46,29 +52,27 @@ public class SecretService
             Id = s.Id,
             Title = s.Title,
             UserName = s.Username,
-            Password = s.Password
+            Password = string.Empty
         };
         return await _context.Secret.WithPagination(projection, pagination);
     }
 
-    public async Task<SecretResponseDto> GetSecret(Guid userId, Guid secretId)
+    public async Task<SecretResponseDto> GetSecret(Guid userId, Guid secretId, SecretRequestShowDto payload)
     {
         var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) ?? throw new ArgumentException("Chave secreta inválida");
 
-        Expression<Func<Secret, SecretResponseDto>> projection = s => new SecretResponseDto
-        {
-            Id = s.Id,
-            Title = s.Title,
-            UserName = s.Username,
-            Password = s.Password 
-        };
-
-        var secret = await _secretRepository.GetSecretById<SecretResponseDto>(secretId, projection) 
+        var secret = await _secretRepository.GetSecretById(secretId) 
             ?? throw new BadHttpRequestException("Not found secret with this id");
+
+        var masterDerived = DeriveHelper.RFC2898(payload.MasterPassword, userSecretKey.User.MasterPasswordSalt);
+        var vaultKey = AESHelper.Decrypt(masterDerived, userSecretKey.Key);
+        var pass = AESHelper.Decrypt(vaultKey, secret.Password);
         
-        // Descriptografa DEPOIS de trazer do banco
-        secret.Password = AESHelper.Decrypt(userSecretKey.Key, secret.Password);
-        
-        return secret;
+        return new SecretResponseDto {
+            Id = secret.Id,
+            Title = secret.Title,
+            UserName = secret.Username,
+            Password = Encoding.UTF8.GetString(pass)
+        };
     }
 };

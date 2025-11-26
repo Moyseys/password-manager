@@ -6,7 +6,7 @@ public class SecretKey
 {
     [Key]
     public Guid Id { get; set;}
-    public required string Key { get; set; }
+    public required byte[] Key { get; set; }
     public required Guid UserId { get; set; } //Obrigatório
-    public required User? User { get; set; } // Opcional
+    public User? User { get; set; } // Opcional
 }

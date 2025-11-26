@@ -23,4 +23,24 @@ public static class QueryExtension
             Items = items
         };
     }
+
+    public static async Task<PageableDto<TEntity>> WithPagination<TEntity>(this IQueryable<TEntity> query, PaginationDto pagination)
+    {
+        if(pagination.Size <= 0) throw new BadHttpRequestException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
+
+        var totalItems = await query.CountAsync();
+
+        var offSet = pagination.Size * (pagination.Page - 1); 
+
+        var items = await query.Skip(offSet).Take(pagination.Size).ToListAsync();
+
+        return new PageableDto<TEntity>()
+        {
+            Page = pagination.Page,
+            Size = pagination.Size,
+            TotalItems = totalItems,
+            TotalPages= (int)Math.Ceiling((decimal)totalItems / pagination.Size),
+            Items = items
+        };
+    }
 }

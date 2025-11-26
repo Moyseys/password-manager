@@ -1,7 +1,5 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using PasswordManager.DAL.Entities;
 
 namespace PasswordManager.Features.SecretKey;
 
@@ -16,14 +14,14 @@ public class SecretKeyController : ControllerBase
         this.secretKeyService = secretKeyService;
     }
 
-    [HttpPost]
-    async public Task<ActionResult<SecretKeyRequestDto>> Create([FromBody] SecretKeyRequestDto payload)
+    [HttpPatch]
+    async public Task<ActionResult<SecretKeyRequestDto>> Update([FromBody] SecretKeyRequestDto payload)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value ?? throw new InvalidOperationException("Invalid user");
     
-        return Ok(await secretKeyService.Create(payload, Guid.Parse(userId)));
+            return Ok("Not implemented");
         }
         catch (BadHttpRequestException error)
         {

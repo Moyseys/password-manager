@@ -31,6 +31,9 @@ public class SecretKeyRepository
 
     public async Task<SecretKey?> GetSecretKeyByUserId(Guid userId)
     {
-        return await Context.SecretKey.Where((sk) => sk.UserId == userId).FirstOrDefaultAsync();
+        return await Context.SecretKey
+        .Include((sk) => sk.User)
+        .Where((sk) => sk.UserId == userId)
+        .FirstOrDefaultAsync();
     }
 } 
