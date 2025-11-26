@@ -1,5 +1,7 @@
 # Password Manager
 
+![preview](./image.png)
+
 Projeto simples de exemplo para gerenciar segredos — contém uma API em .NET 9 (`pass-api`), um cliente Angular (`pass-client`) e uma gateway (`pass-gw`). Este README traz instruções rápidas e amigáveis para rodar o projeto localmente ou via Docker.
 
 **Resumo rápido:**
