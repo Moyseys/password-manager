@@ -38,7 +38,7 @@ builder.Services.AddScoped<SecretKeyService>();
 //Entities
 builder.Services.AddScoped<PasswordHasher<User>>();
 
-//ExceptionHandler
+//Exceptions
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -60,7 +60,7 @@ var publicRouter = new Dictionary<string, string[]>() {
 };
 
 //Middlewares
-app.UseExceptionHandler();
+app.UseExceptionHandler(); //Binda um os middlewares de exceptionHandler como primiro na pipe
 app.UseWhen(
     context =>
     {
