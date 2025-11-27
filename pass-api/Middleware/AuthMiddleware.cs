@@ -15,8 +15,6 @@ class AuthMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        try
-        {
         var authService = context.RequestServices.GetRequiredService<AuthService>();
         if (!context.Request.Headers.TryGetValue(AuthorizationHeader, out var token))        
             throw new InvalidDataException($"Not found Header {AuthorizationHeader}");
@@ -30,12 +28,5 @@ class AuthMiddleware
         context.User = principal;
 
         await _next(context);
-        }
-        catch (InvalidDataException error)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await context.Response.WriteAsJsonAsync(error.Message);
-            return;
-        }
     }
 }

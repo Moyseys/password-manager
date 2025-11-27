@@ -18,15 +18,8 @@ public class AuthController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<LoginResponseDto>> Token(LoginRequestDto payload)
     {
-        try
-        {
-            LoginResponseDto res = await _authService.token(payload);
-            return Ok(res);
-        }
-        catch (InvalidDataException e)
-        {
-            return BadRequest(new { Message = $"Requisição inválida: {e.Message}"});
-        }
+        LoginResponseDto res = await _authService.token(payload);
+        return Ok(res);
     }
 
     

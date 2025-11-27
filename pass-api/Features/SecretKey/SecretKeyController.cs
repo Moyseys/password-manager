@@ -17,15 +17,7 @@ public class SecretKeyController : ControllerBase
     [HttpPatch]
     async public Task<ActionResult<SecretKeyRequestDto>> Update([FromBody] SecretKeyRequestDto payload)
     {
-        try
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value ?? throw new InvalidOperationException("Invalid user");
-    
-            return Ok("Not implemented");
-        }
-        catch (BadHttpRequestException error)
-        {
-            return BadRequest(new { message = error.Message });
-        }
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value ?? throw new InvalidOperationException("Invalid user");
+        return Ok("Not implemented");
     }
 }

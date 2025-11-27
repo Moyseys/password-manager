@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PasswordManager.DAL;
 using PasswordManager.DAL.Entities;
 using PasswordManager.DAL.Repositories;
+using PasswordManager.Exceptions;
 using PasswordManager.Features.Auth;
 using PasswordManager.Features.SecretKey;
 using PasswordManager.Features.Secrets;
@@ -37,6 +38,10 @@ builder.Services.AddScoped<SecretKeyService>();
 //Entities
 builder.Services.AddScoped<PasswordHasher<User>>();
 
+//ExceptionHandler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 //Doc
 builder.Services.AddOpenApi();
 
@@ -55,6 +60,7 @@ var publicRouter = new Dictionary<string, string[]>() {
 };
 
 //Middlewares
+app.UseExceptionHandler();
 app.UseWhen(
     context =>
     {

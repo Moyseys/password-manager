@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using PasswordManager.DAL.Entities;
 using PasswordManager.DAL.Repositories;
@@ -14,11 +15,13 @@ public class AuthService
 {
     private readonly IConfiguration _configuration;
     private readonly IConfiguration _jwtSettings;
-    UserResitory userResitory;
+    private readonly PasswordHasher<User> passwordHasher;
+    private readonly UserResitory userResitory;
 
-    public AuthService(UserResitory userResitory, IConfiguration configuration)
+    public AuthService(UserResitory userResitory, IConfiguration configuration, PasswordHasher<User> passwordHasher)
     {
         this.userResitory = userResitory;
+        this.passwordHasher = passwordHasher;
         this._configuration = configuration;
         this._jwtSettings = this._configuration.GetSection("JwtSettings");
     }
@@ -26,22 +29,24 @@ public class AuthService
     public async Task<LoginResponseDto> token(LoginRequestDto payload)
     {
         if (string.IsNullOrEmpty(payload.Email) || string.IsNullOrEmpty(payload.Password))
-            throw new InvalidDataException("E-mail ou Senha inválida!");
+            throw new InvalidDataException("Invalid E-mail or Password!");
 
-        User? user = await userResitory.GetUserByEmailAsync(payload.Email);
+        User? user = await userResitory.GetUserByEmailAsync(payload.Email) 
+            ?? throw new InvalidDataException("E-mail not registred!");
         
-        if (user == null) throw new InvalidDataException("E-mail não cadastrado!");
+        var verifyPass = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, payload.Password);
+        if(verifyPass != PasswordVerificationResult.Success) throw new InvalidDataException("Invalid Password!");
 
         return new LoginResponseDto
         {
             Name = user.Name,
             Email = user.Email,
-            Token = generateTokenJwt(user)
+            Token = GenerateTokenJwt(user)
         };
     }
 
 
-    string generateTokenJwt(User user)
+    private string GenerateTokenJwt(User user)
     {
         var SecretKey = _jwtSettings["SecretKey"] ?? throw new InvalidDataException("Invalid JWT credentials");
         var Issuer = this._jwtSettings["Issuer"];
@@ -72,8 +77,6 @@ public class AuthService
     public ClaimsPrincipal? ValidateToken(string Token)
     {
         if (Token == null) return null;
-        try
-        {
             var tokenHandler = new JwtSecurityTokenHandler();
             var secretKey = _jwtSettings["SecretKey"] ?? throw new InvalidDataException("Invalid JWT credentials");
             var key = Encoding.UTF8.GetBytes(secretKey);
@@ -89,10 +92,5 @@ public class AuthService
 
             var principal = tokenHandler.ValidateToken(Token, validationParameters, out var validatedToken);
             return principal;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
    } 
 }
