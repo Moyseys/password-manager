@@ -26,9 +26,8 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "5000:8080"
+      - "8083:8080"
     restart: unless-stopped
-    # Load environment variables from the project .env file
     env_file:
       - .env
     environment:
@@ -40,10 +39,26 @@ services:
       context: ./pass-gw
       dockerfile: Dockerfile
     ports:
-      - "8080:8080" # gateway acessível na porta 8080 do host
+      - "8080:8080"
     restart: unless-stopped
     volumes:
       - ./pass-gw/krakend.json:/etc/krakend/krakend.json:ro
+
+  pass-client:
+    build:
+      context: ./pass-client
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  pass-server:
+    build:
+      context: ./pass-server
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    restart: unless-stopped
 
 volumes:
   db-data:

@@ -16,7 +16,6 @@
       ],
       "allow_headers": ["*"],
       "expose_headers": ["*"],
-      "allow_credentials": true,
       "max_age": "24h",
       "debug": true,
       "auto_options": true
