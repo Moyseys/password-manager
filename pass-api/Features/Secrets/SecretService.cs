@@ -30,7 +30,7 @@ public class SecretService
         var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) 
             ?? throw new ArgumentException("Chave secreta inválida");
         var masterPassDerived = DeriveHelper.RFC2898(payload.MasterPassword, userSecretKey.User.MasterPasswordSalt) 
-            ?? throw new ArgumentException("");
+            ?? throw new ArgumentException("Chave secreta inválida 2");
         
         var key = AESHelper.Decrypt(masterPassDerived, userSecretKey.Key);
 
@@ -54,7 +54,9 @@ public class SecretService
             UserName = s.Username,
             Password = string.Empty
         };
-        return await _context.Secret.WithPagination(projection, pagination);
+        return await _context.Secret
+            .Where((s) => s.UserId == userId)
+            .WithPagination(projection, pagination);
     }
 
     public async Task<SecretResponseDto> GetSecret(Guid userId, Guid secretId, SecretRequestShowDto payload)

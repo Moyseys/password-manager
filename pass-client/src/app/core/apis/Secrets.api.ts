@@ -1,10 +1,10 @@
 import { environment } from 'src/environments/environment';
 import { Pageable } from '../models/pageable.model';
-import { BaseHttpClientService } from '../services/base-http-client.service';
 import { SecretListInterface } from '../interfaces/secretList.interface';
 import { SecretInterface } from '../interfaces/secret.interface';
+import { BaseHttpClientApi } from './base-http-client.api';
 
-export class SecretsApi extends BaseHttpClientService {
+export class SecretsApi extends BaseHttpClientApi {
   private readonly resource = `${environment.api.url}/pass-api/v1/secrets`;
 
   get(page?: number, size?: number, sort?: string) {

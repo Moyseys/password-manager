@@ -32,13 +32,22 @@ export class PasswordDetailModal {
   isSaving = signal(false);
   copyMessage = signal<string | null>(null);
 
+  showPassword = signal(false);
+
   form: FormGroup = this.fb.group({
     title: ['', Validators.required],
     userName: ['', Validators.required],
     password: ['', Validators.required],
   });
 
-  // When secret changes, patch form and keep it disabled by default
+  get passwordInputType(): string {
+    return this.showPassword() ? 'text' : 'password';
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
+  }
+
   private _patchEffect = effect(() => {
     const s = this.secret?.();
     if (s) {

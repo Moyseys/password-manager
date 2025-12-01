@@ -1,6 +1,6 @@
 @import '../../core/statics/variables.statics.scss';
 
-.login-container {
+.register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -9,7 +9,7 @@
   background: var(--nav-slate-900);
 }
 
-.login-card {
+.register-card {
   width: 100%;
   max-width: 400px;
   padding: 2rem;
@@ -19,25 +19,25 @@
   box-shadow: var(--nav-shadow-lg);
 }
 
-.login-header {
+.register-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.login-title {
+.register-title {
   font-size: 2rem;
   font-weight: 700;
   color: var(--nav-text-white);
   margin: 0 0 0.5rem 0;
 }
 
-.login-subtitle {
+.register-subtitle {
   color: var(--nav-text-light);
   font-size: 1rem;
   margin: 0;
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -92,7 +92,7 @@ input[z-input] {
   margin-top: 1rem;
 }
 
-.login-button {
+.register-button {
   width: 100%;
   font-weight: 600;
   text-transform: uppercase;
@@ -106,13 +106,12 @@ input[z-input] {
   }
 }
 
-.login-footer {
+.register-footer {
   text-align: center;
-  color: var(--nav-primary);
   margin-top: 1.5rem;
 }
 
-.forgot-password {
+.login-link {
   color: var(--nav-primary);
   text-decoration: none;
   font-size: 0.875rem;
@@ -125,17 +124,16 @@ input[z-input] {
   }
 }
 
-// Responsividade
 @media (max-width: 480px) {
-  .login-container {
+  .register-container {
     padding: 0.5rem;
   }
 
-  .login-card {
+  .register-card {
     padding: 1.5rem;
   }
 
-  .login-title {
+  .register-title {
     font-size: 1.75rem;
   }
 }
