@@ -5,6 +5,7 @@ using PasswordManager.DAL.Entities;
 using PasswordManager.DAL.Repositories;
 using PasswordManager.Features.Users.Dtos;
 using PasswordManager.Utils;
+using System.ComponentModel.DataAnnotations;
 
 namespace PasswordManager.Features.Users.Services
 {
@@ -24,7 +25,7 @@ namespace PasswordManager.Features.Users.Services
         public async Task<CreateUserDto> CreateUser(CreateUserDto payload)
         {
             var user = await userResitory.GetUserByEmailAsync(payload.Email);
-            if (user != null) return payload;
+            if (user != null) throw new InvalidDataException("User alredy exist");
             
             
             byte[] vaultKeyBytes = Aes.Create().Key;
@@ -43,6 +44,11 @@ namespace PasswordManager.Features.Users.Services
                 MasterPasswordSalt = masterPasswordSalt
             };
             newUser.PasswordHash = passwordHasher.HashPassword(newUser, newUser.Password);
+            
+            var validationUser = ValidateCreateUser(newUser);
+            if(validationUser != null && validationUser.Count() > 0)
+                throw new InvalidDataException(string.Join("; ", validationUser.Select(v => v.ErrorMessage)));
+
             await userResitory.AddAsync(newUser);
 
             var sk = new SecretKeyEntity
@@ -54,6 +60,15 @@ namespace PasswordManager.Features.Users.Services
 
             await secretKeyRepository.AddAsync(sk);
             return payload;
+        }
+
+        public List<ValidationResult> ValidateCreateUser(User user)
+        {
+            var validationContext = new ValidationContext(user);
+            var result = new List<ValidationResult>();
+
+            Validator.TryValidateObject(user, validationContext, result, validateAllProperties: true);
+            return result;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PasswordManager.DAL.Entities;
 
-//Validação via data anotation
 public class User
 {
     public Guid Id { get; set; }
@@ -15,7 +14,7 @@ public class User
     public required string PasswordHash { get; set; }
 
     [Required(ErrorMessage = "E-mail is required")]
-    [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Formato de e-mail inválido")]
+    [EmailAddress]
     public required string Email { get; set; }
 
     [NotMapped()]
