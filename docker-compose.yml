@@ -67,7 +67,9 @@ services:
     restart: unless-stopped
 
   pass-server:
-    image: pass-registry:5000/pass-server:latest
+    build:
+      context: pass-server
+      dockerfile: Dockerfile
     depends_on:
       pass-registry:
         condition: service_healthy
