@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 COPY *.csproj ./
-RUN dotnet restore
+RUN dotnet restore --disable-parallel
 
 COPY . ./
 RUN dotnet publish -c Release -o dist
