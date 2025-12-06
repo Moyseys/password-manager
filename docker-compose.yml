@@ -9,7 +9,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./pass-registry:5000/registry/data:/var/lib/registry
+      - ./pass-registry/registry/data:/var/lib/registry
   db:
     image: postgres:15
     restart: unless-stopped
