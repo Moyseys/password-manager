@@ -62,3 +62,6 @@ obj/
 dist/
 out/
 .idea/
+
+#Nginx
+conf.d
