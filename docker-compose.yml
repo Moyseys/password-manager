@@ -47,7 +47,9 @@ services:
       - JwtSettings__SecretKey=${JWT_SECRET}
 
   pass-gw:
-    image: pass-registry:5000/pass-gw:latest
+    build:
+      context: pass-gw
+      dockerfile: Dockerfile
     depends_on:
       pass-registry:
         condition: service_healthy
@@ -58,7 +60,9 @@ services:
       - ./pass-gw/krakend.json:/etc/krakend/krakend.json:ro
 
   pass-client:
-    image: pass-registry:5000/pass-client:latest
+    build:
+      context: pass-client
+      dockerfile: Dockerfile
     depends_on:
       pass-registry:
         condition: service_healthy
