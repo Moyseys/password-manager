@@ -59,26 +59,29 @@ services:
     volumes:
       - ./pass-gw/krakend.json:/etc/krakend/krakend.json:ro
 
-  pass-client:
-    build:
-      context: pass-client
-      dockerfile: Dockerfile
-    depends_on:
-      pass-registry:
-        condition: service_healthy
-    ports:
-      - "80:80"
-    restart: unless-stopped
+  # pass-client:
+  #   build:
+  #     context: pass-client
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     pass-registry:
+  #       condition: service_healthy
+  #   ports:
+  #     - "80:80"
+  #   restart: unless-stopped
 
   pass-server:
     build:
       context: pass-server
       dockerfile: Dockerfile
     depends_on:
+      pass-gw:
+        condition: service_started
       pass-registry:
         condition: service_healthy
     ports:
-      - "8081:80"
+      - "80:80"
+      - "443:443"
     restart: unless-stopped
 
 volumes:
