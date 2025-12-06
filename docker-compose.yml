@@ -6,6 +6,8 @@ services:
       context: ./pass-registry
       dockerfile: Dockerfile
     restart: unless-stopped
+    environment:
+      REGISTRY_HTTP_ADDR: 0.0.0.0:5000
     ports:
       - "5000:5000"
     volumes:
