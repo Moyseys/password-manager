@@ -1,4 +1,4 @@
-FROM registry:2.8.3
+FROM registry:latest
 
 EXPOSE 5000
 
