@@ -120,6 +120,8 @@ services:
       context: pass-server
       dockerfile: Dockerfile
     depends_on:
+      pass-client:
+        condition: service_completed_successfully
       pass-gw:
         condition: service_started
       pass-registry:
