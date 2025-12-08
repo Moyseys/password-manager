@@ -130,6 +130,8 @@ services:
       - "80:80"
       - "443:443"
     restart: unless-stopped
+    volumes:
+      - ./pass-server/certs:/etc/nginx/certs
     deploy:
       resources:
         limits:
