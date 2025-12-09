@@ -48,14 +48,28 @@
 
       <div class="form-group">
         <label for="password" class="form-label">Senha</label>
-        <input
-          id="password"
-          type="password"
-          z-input
-          formControlName="password"
-          placeholder="Digite sua senha"
-          [class.error]="password?.invalid && password?.touched"
-        />
+        <div class="input-with-icon">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            z-input
+            formControlName="password"
+            placeholder="Digite sua senha"
+            [class.error]="password?.invalid && password?.touched"
+          />
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="togglePasswordVisibility()"
+            aria-label="Mostrar/ocultar senha"
+          >
+            <i
+              class="lucide"
+              [ngClass]="showPassword ? 'icon-eye-off' : 'icon-eye'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
         @if (password?.invalid && password?.touched) {
         <div class="error-message">
           @if (password?.errors?.['required']) {
@@ -68,21 +82,111 @@
       </div>
 
       <div class="form-group">
+        <label for="confirmPassword" class="form-label">Confirmar Senha</label>
+        <div class="input-with-icon">
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            z-input
+            formControlName="confirmPassword"
+            placeholder="Confirme sua senha"
+            [class.error]="
+              (confirmPassword?.invalid && confirmPassword?.touched) || hasPasswordMismatch
+            "
+          />
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="toggleConfirmPasswordVisibility()"
+            aria-label="Mostrar/ocultar confirmação de senha"
+          >
+            <i
+              class="lucide"
+              [ngClass]="showConfirmPassword ? 'icon-eye-off' : 'icon-eye'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+        @if ((confirmPassword?.invalid && confirmPassword?.touched) || hasPasswordMismatch) {
+        <div class="error-message">
+          @if (confirmPassword?.errors?.['required']) {
+          <span>Confirmação de senha é obrigatória</span>
+          } @if (hasPasswordMismatch) {
+          <span>As senhas não coincidem</span>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="form-group">
         <label for="masterPassword" class="form-label">Senha Mestra</label>
-        <input
-          id="masterPassword"
-          type="password"
-          z-input
-          formControlName="masterPassword"
-          placeholder="Digite sua senha mestra"
-          [class.error]="masterPassword?.invalid && masterPassword?.touched"
-        />
+        <div class="input-with-icon">
+          <input
+            id="masterPassword"
+            [type]="showMasterPassword ? 'text' : 'password'"
+            z-input
+            formControlName="masterPassword"
+            placeholder="Digite sua senha mestra"
+            [class.error]="masterPassword?.invalid && masterPassword?.touched"
+          />
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="toggleMasterPasswordVisibility()"
+            aria-label="Mostrar/ocultar senha mestra"
+          >
+            <i
+              class="lucide"
+              [ngClass]="showMasterPassword ? 'icon-eye-off' : 'icon-eye'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
         @if (masterPassword?.invalid && masterPassword?.touched) {
         <div class="error-message">
           @if (masterPassword?.errors?.['required']) {
           <span>Senha mestra é obrigatória</span>
           } @if (masterPassword?.errors?.['minlength']) {
           <span>Senha mestra deve ter pelo menos 6 caracteres</span>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmMasterPassword" class="form-label">Confirmar Senha Mestra</label>
+        <div class="input-with-icon">
+          <input
+            id="confirmMasterPassword"
+            [type]="showMasterPassword ? 'text' : 'password'"
+            z-input
+            formControlName="confirmMasterPassword"
+            placeholder="Confirme sua senha mestra"
+            [class.error]="
+              (confirmMasterPassword?.invalid && confirmMasterPassword?.touched) ||
+              hasMasterPasswordMismatch
+            "
+          />
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="toggleMasterPasswordVisibility()"
+            aria-label="Mostrar/ocultar confirmação da senha mestra"
+          >
+            <i
+              class="lucide"
+              [ngClass]="showMasterPassword ? 'icon-eye-off' : 'icon-eye'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+        @if ((confirmMasterPassword?.invalid && confirmMasterPassword?.touched) ||
+        hasMasterPasswordMismatch) {
+        <div class="error-message">
+          @if (confirmMasterPassword?.errors?.['required']) {
+          <span>Confirmação da senha mestra é obrigatória</span>
+          } @if (hasMasterPasswordMismatch) {
+          <span>As senhas mestras não coincidem</span>
           }
         </div>
         }
