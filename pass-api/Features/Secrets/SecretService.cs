@@ -4,10 +4,11 @@ using PasswordManager.DAL;
 using PasswordManager.DAL.Repositories;
 using PasswordManager.Features.Secrets.Dtos.Requests;
 using PasswordManager.Features.Secrets.Dtos.Response;
-using PasswordManager.Shared;
+using PasswordManager.Exceptions;
 using PasswordManager.SharedDtos;
 using PasswordManager.Utils;
 using Secret = PasswordManager.DAL.Entities.Secret;
+using PasswordManager.Extensions;
 
 
 namespace PasswordManager.Features.Secrets;

@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PasswordManager.DAL.Entities.Commons;
 
 namespace PasswordManager.DAL.Entities;
 
-public class User
+public class User : BaseEntity<Guid>
 {
-    public Guid Id { get; set; }
-
     [Required(ErrorMessage = "Name is required")]
     public required string Name { get; set; }
 

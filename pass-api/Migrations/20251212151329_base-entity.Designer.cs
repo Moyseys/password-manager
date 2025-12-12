@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasswordManager.DAL;
@@ -11,9 +12,11 @@ using PasswordManager.DAL;
 namespace PasswordManager.Migrations
 {
     [DbContext(typeof(PasswordManagerDbContext))]
-    partial class PasswordManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251212151329_base-entity")]
+    partial class baseentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,7 @@ namespace PasswordManager.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnName("userid");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -69,14 +72,14 @@ namespace PasswordManager.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnName("userid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("secret_key");
+                    b.ToTable("secretkey");
                 });
 
             modelBuilder.Entity("PasswordManager.DAL.Entities.User", b =>
@@ -92,19 +95,19 @@ namespace PasswordManager.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnName("createdat");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnName("createdby");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
+                        .HasColumnName("deletedat");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
+                        .HasColumnName("deletedby");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -114,7 +117,7 @@ namespace PasswordManager.Migrations
                     b.Property<byte[]>("MasterPasswordSalt")
                         .IsRequired()
                         .HasColumnType("bytea")
-                        .HasColumnName("master_password_salt");
+                        .HasColumnName("masterpasswordsalt");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -124,15 +127,15 @@ namespace PasswordManager.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("password_hash");
+                        .HasColumnName("passwordhash");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnName("updatedat");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnName("updatedby");
 
                     b.HasKey("Id");
 

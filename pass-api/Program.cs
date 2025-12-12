@@ -1,8 +1,10 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PasswordManager.Contexts;
 using PasswordManager.DAL;
 using PasswordManager.DAL.Entities;
+using PasswordManager.DAL.Interceptors;
 using PasswordManager.DAL.Repositories;
 using PasswordManager.Exceptions;
 using PasswordManager.Features.Auth;
@@ -21,8 +23,11 @@ builder.Services.AddControllers() //Configura construtores e JSON
         options.JsonSerializerOptions.WriteIndented = false; // Produz JSON conpacto
     });
 builder.Services.AddEndpointsApiExplorer(); //Swagger
-builder.Services.AddDbContext<PasswordManagerDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))); //Configuração do banco -> EF
+builder.Services.AddDbContext<PasswordManagerDbContext>((ServiceProvider, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")); //Configuração do banco -> EF
+    options.AddInterceptors(ServiceProvider.GetRequiredService<AuditInterceptor>()); 
+});
 
 //Repositories
 builder.Services.AddScoped<UserResitory>();
@@ -34,6 +39,13 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SecretService>();
 builder.Services.AddScoped<SecretKeyService>();
+
+//DbInterceptor
+builder.Services.AddScoped<AuditInterceptor>();
+
+//Context
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<UserContext>();
 
 //Entities
 builder.Services.AddScoped<PasswordHasher<User>>();

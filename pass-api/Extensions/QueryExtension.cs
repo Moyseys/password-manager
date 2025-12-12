@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PasswordManager.SharedDtos;
 
-namespace PasswordManager.Shared;
+namespace PasswordManager.Extensions;
 
 public static class QueryExtension
 {
