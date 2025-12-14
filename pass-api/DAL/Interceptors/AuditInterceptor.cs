@@ -32,7 +32,9 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
             else if (entry.State == EntityState.Modified)
             {
                 var deleteAtProp = entry.Property(nameof(BaseEntity<Guid>.Active));
-                var isSoftDelete = deleteAtProp.IsModified && deleteAtProp.Equals(true);
+                var isSoftDelete = deleteAtProp.IsModified 
+                    && deleteAtProp.CurrentValue != null
+                    && deleteAtProp.CurrentValue.Equals(false);
                 if (isSoftDelete)
                 {
                     entry.Entity.DeletedAt = DateTime.UtcNow;
