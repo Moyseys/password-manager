@@ -11,7 +11,9 @@
       </button>
       <h1 class="header__title">{{ appTitle() }}</h1>
       <div class="header__actions">
-        <!-- Espaço para ações do header como perfil do usuário -->
+        <button class="header__logout-btn" (click)="logout()" title="Sair">
+          <i class="lucide icon-log-out" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
   </header>

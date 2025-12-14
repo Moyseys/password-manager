@@ -1,5 +1,7 @@
-import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { CookieService } from '../../services/cookie.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-main-navigator',
@@ -9,8 +11,9 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainNavigator {
+  private readonly router = inject(Router);
   private readonly _isSidebarOpen = signal(false);
-  private readonly _appTitle = signal('Pass Client');
+  private readonly _appTitle = signal('Pass Manager');
 
   protected readonly isSidebarOpen = computed(() => this._isSidebarOpen());
   protected readonly appTitle = computed(() => this._appTitle());
@@ -26,5 +29,10 @@ export class MainNavigator {
 
   openSidebar(): void {
     this._isSidebarOpen.set(true);
+  }
+
+  logout(): void {
+    CookieService.deleteCookie(environment.cookies.token);
+    this.router.navigate(['/login']);
   }
 }
