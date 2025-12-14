@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PasswordManager.DAL.Entities;
+using PasswordManager.Features.Secrets.Dtos.Requests;
 using PasswordManager.SharedDtos;
 
 namespace PasswordManager.DAL.Repositories;
@@ -29,5 +30,10 @@ public class SecretRepository
     public async Task<Secret?> GetSecretById(Guid secretId)
     {
         return await _context.Secret.Where((s) => s.Id == secretId).FirstOrDefaultAsync();
+    }
+
+    public async Task <Secret?> GetSecretByIdAndUserId(Guid userId, Guid secretId)
+    {
+        return await _context.Secret.Where(s => s.UserId.Equals(userId) && s.Id.Equals(secretId)).FirstAsync();
     }
 }

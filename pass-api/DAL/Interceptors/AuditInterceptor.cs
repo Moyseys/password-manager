@@ -19,7 +19,7 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
         if(context == null) return base.SavingChangesAsync(dbContextEventData, result, cancellation); 
         
         var entries = context.ChangeTracker
-            .Entries<BaseEntity<Guid>>() //! Aqui é retornado somente Entities que herdam de BaseEntity
+            .Entries<BaseAuditEntity>() //! Aqui é retornado somente Entities que herdam de BaseAuditEntity
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
         foreach(var entry in entries)
@@ -32,7 +32,7 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
             else if (entry.State == EntityState.Modified)
             {
                 var deleteAtProp = entry.Property(nameof(BaseEntity<Guid>.Active));
-                var isSoftDelete = deleteAtProp.IsModified && entry.Entity.Active.Equals(true);
+                var isSoftDelete = deleteAtProp.IsModified && deleteAtProp.Equals(true);
                 if (isSoftDelete)
                 {
                     entry.Entity.DeletedAt = DateTime.UtcNow;

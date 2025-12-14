@@ -2,7 +2,7 @@ namespace PasswordManager.Features.Secrets.Dtos.Response;
 
 using PasswordManager.DAL.Dtos;
 
-public class SecretResponseDto
+public class SecretResponseListDto
 {
     public Guid Id { get; set; }
     public required string Title { get; set; }

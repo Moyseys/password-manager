@@ -4,78 +4,103 @@ using PasswordManager.DAL;
 using PasswordManager.DAL.Repositories;
 using PasswordManager.Features.Secrets.Dtos.Requests;
 using PasswordManager.Features.Secrets.Dtos.Response;
-using PasswordManager.Exceptions;
 using PasswordManager.SharedDtos;
 using PasswordManager.Utils;
 using Secret = PasswordManager.DAL.Entities.Secret;
+using SecretKeyEntity = PasswordManager.DAL.Entities.SecretKey;
 using PasswordManager.Extensions;
+using PasswordManager.Contexts;
+using PasswordManager.Mappers;
 
 
 namespace PasswordManager.Features.Secrets;
 
-public class SecretService
+public class SecretService(
+    SecretRepository secretRepository, 
+    SecretKeyRepository secretKeyRepository, 
+    PasswordManagerDbContext context, 
+    UserContext userContext
+    )
 {
-    private SecretRepository _secretRepository;
-    private SecretKeyRepository _secretKeyRepository;
-    private PasswordManagerDbContext _context;
+    private readonly SecretRepository _secretRepository = secretRepository;
+    private readonly SecretKeyRepository _secretKeyRepository = secretKeyRepository;
+    private readonly PasswordManagerDbContext _context = context;
+    private readonly UserContext _userContext = userContext;
 
-    public SecretService(SecretRepository secretRepository,  SecretKeyRepository secretKeyRepository, PasswordManagerDbContext context)
+    public async Task CreateSecret(SecretRequestCreateDto payload)
     {
-        _secretRepository = secretRepository;
-        _secretKeyRepository = secretKeyRepository;
-        _context = context;
-    }
+        var userId = _userContext.UserId;
+        var userSecretKey = await GetUserSecretKey(userId);
 
-    public async Task CreateSecret(SecretRequestCreateDto payload, Guid userId)
-    {
-        var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) 
-            ?? throw new ArgumentException("Chave secreta inválida");
-        var masterPassDerived = DeriveHelper.RFC2898(payload.MasterPassword, userSecretKey.User.MasterPasswordSalt) 
-            ?? throw new ArgumentException("Chave secreta inválida 2");
-        
-        var key = AESHelper.Decrypt(masterPassDerived, userSecretKey.Key);
+        var vaultKey = ExtractVaultKey(payload.MasterPassword, userSecretKey.User!.MasterPasswordSalt, userSecretKey.Key);
 
-        Secret secret = new Secret
+        Secret secret =  new()
         {
             Title = payload.Title,
             Username = payload.UserName,
-            Password = AESHelper.Encrypt(key, Encoding.UTF8.GetBytes(payload.Password)),
+            Password = CreateSecretPass(vaultKey, Encoding.UTF8.GetBytes(payload.Password)),
             UserId = userId
         };
 
         await _secretRepository.AddAsync(secret);
     }
 
-    public async Task<PageableDto<SecretResponseDto>> ListSecrets(Guid userId, PaginationDto pagination)
+    public async Task<PageableDto<SecretResponseListDto>> ListSecrets(PaginationDto pagination)
     {
-        Expression<Func<Secret, SecretResponseDto>> projection = s => new SecretResponseDto
-        {
-            Id = s.Id,
-            Title = s.Title,
-            UserName = s.Username,
-            Password = string.Empty
-        };
+        var userId = _userContext.UserId;
         return await _context.Secret
-            .Where((s) => s.UserId == userId)
-            .WithPagination(projection, pagination);
+            .Where((s) => s.UserId == userId && s.Active.Equals(true))
+            .WithPagination(s => s.ToSecretReponseListDto(), pagination);
     }
 
-    public async Task<SecretResponseDto> GetSecret(Guid userId, Guid secretId, SecretRequestShowDto payload)
+    public async Task<SecretResponseDto> GetSecret(Guid secretId, SecretRequestShowDto payload)
     {
-        var userSecretKey = await _secretKeyRepository.GetSecretKeyByUserId(userId) ?? throw new ArgumentException("Chave secreta inválida");
-
-        var secret = await _secretRepository.GetSecretById(secretId) 
-            ?? throw new BadHttpRequestException("Not found secret with this id");
-
-        var masterDerived = DeriveHelper.RFC2898(payload.MasterPassword, userSecretKey.User.MasterPasswordSalt);
-        var vaultKey = AESHelper.Decrypt(masterDerived, userSecretKey.Key);
-        var pass = AESHelper.Decrypt(vaultKey, secret.Password);
+        var userId = _userContext.UserId;
+        var userSecretKey = await GetUserSecretKey(userId);
+        var secret = await GetUserSecret(userId, secretId);
         
-        return new SecretResponseDto {
-            Id = secret.Id,
-            Title = secret.Title,
-            UserName = secret.Username,
-            Password = Encoding.UTF8.GetString(pass)
-        };
+        var vaultKey = ExtractVaultKey(payload.MasterPassword, userSecretKey.User!.MasterPasswordSalt, userSecretKey.Key);
+        secret.Password = AESHelper.Decrypt(vaultKey, secret.Password);
+        
+        return secret.ToSecretResponseDto();
+    }
+
+    public async Task<SecretResponseUpdateDto> UpdateSecret(Guid secretId, SecretRequestUpdateDto payload, CancellationToken cancellationToken)
+    {
+        //TODO Criar validação condicional
+        var secret = await GetUserSecret(_userContext.UserId, secretId);
+        var secretKey = await GetUserSecretKey(_userContext.UserId);
+
+        secret.ToSecretRequestUpdate(payload);
+        if(payload.Password != null && payload.MasterPassword != null)
+        {
+            var vaultKey = ExtractVaultKey(payload.MasterPassword, secretKey.User!.MasterPasswordSalt, secretKey.Key);
+            secret.Password = CreateSecretPass(vaultKey, Encoding.UTF8.GetBytes(payload.Password));
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return new SecretResponseUpdateDto(secret.Title, secret.Username, "*****");
+    }
+
+    private async Task<SecretKeyEntity> GetUserSecretKey(Guid? userId)
+    {
+        if(userId == null) throw new UnauthorizedAccessException("User is not authenticated!");
+        return await _secretKeyRepository.GetSecretKeyByUserId(userId.Value) ?? throw new KeyNotFoundException("User secret key not found");
+    }
+
+    private async Task<Secret> GetUserSecret(Guid? userId, Guid secretId)
+    {
+        if(userId == null) throw new UnauthorizedAccessException("User is not authenticated!");
+        return await _secretRepository.GetSecretByIdAndUserId(userId.Value, secretId) ?? throw new KeyNotFoundException("User secret not found");
+    }
+
+    private byte[] CreateSecretPass(byte[] userSecretKey, byte[] pass){
+        return AESHelper.Encrypt(userSecretKey, pass);
+    }
+
+    private byte[] ExtractVaultKey(string masterPass, byte[] masterPassSalt, byte[] userSecretKey ){
+        var masterPassDerived = DeriveHelper.RFC2898(masterPass, masterPassSalt) 
+            ?? throw new ArgumentException("Secret key invalid");
+       return AESHelper.Decrypt(masterPassDerived, userSecretKey);
     }
 };

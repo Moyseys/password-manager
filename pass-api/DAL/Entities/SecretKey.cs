@@ -1,11 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+using PasswordManager.DAL.Entities.Commons;
 
 namespace PasswordManager.DAL.Entities;
 
-public class SecretKey
+public class SecretKey : BaseEntity<Guid>
 {
-    [Key]
-    public Guid Id { get; set;}
     public required byte[] Key { get; set; }
     public required Guid UserId { get; set; } //Obrigatório
     public User? User { get; set; } // Opcional
