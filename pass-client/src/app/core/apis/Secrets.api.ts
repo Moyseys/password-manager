@@ -3,7 +3,9 @@ import { Pageable } from '../models/pageable.model';
 import { SecretListInterface } from '../interfaces/secretList.interface';
 import { SecretInterface } from '../interfaces/secret.interface';
 import { BaseHttpClientApi } from './base-http-client.api';
+import { Injectable } from '@angular/core';
 
+@Injectable({ providedIn: 'root' })
 export class SecretsApi extends BaseHttpClientApi {
   private readonly resource = `${environment.api.url}/pass-api/v1/secrets`;
 
@@ -32,6 +34,11 @@ export class SecretsApi extends BaseHttpClientApi {
     masterPassword: string
   ) {
     const body = { ...data, masterPassword };
-    return this.http.put<SecretInterface>(`${this.resource}/${secretId}`, body);
+    return this.http.patch<SecretInterface>(`${this.resource}/${secretId}`, body);
+  }
+
+  delete(secretId: string) {
+    const body = { active: false };
+    return this.http.patch(`${this.resource}/${secretId}`, body);
   }
 }

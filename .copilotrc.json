@@ -1,0 +1,61 @@
+{
+  "$schema": "https://docs.github.com/copilot/copilot-for-business/copilot-completions/copilot-completions-schema.json",
+  "context": [
+    ".github/copilot-context.md",
+    "README.md",
+    "pass-api/password-manager.csproj",
+    "docker-compose.yml"
+  ],
+  "rules": {
+    "codeStyle": {
+      "language": "pt-BR",
+      "comments": "pt-BR",
+      "documentation": "pt-BR"
+    },
+    "architecture": {
+      "patterns": [
+        "repository-pattern",
+        "dependency-injection",
+        "clean-architecture",
+        "feature-folders"
+      ],
+      "frameworks": ["asp-net-core", "entity-framework-core", "angular"]
+    },
+    "conventions": {
+      "naming": {
+        "controllers": "PascalCase com sufixo Controller",
+        "services": "PascalCase com sufixo Service",
+        "repositories": "PascalCase com sufixo Repository",
+        "dtos": "PascalCase com sufixo Dto",
+        "entities": "PascalCase sem sufixo"
+      },
+      "fileStructure": {
+        "features": "Organizar por domínio em pastas Features/",
+        "dal": "Data Access Layer em pasta DAL/",
+        "dtos": "DTOs específicos em subpastas por feature"
+      }
+    },
+    "security": {
+      "authentication": "JWT Bearer",
+      "encryption": "AES para dados sensíveis",
+      "environment": "Usar variáveis de ambiente para secrets"
+    }
+  },
+  "suggestions": {
+    "includePatterns": [
+      "**/*.cs",
+      "**/*.ts",
+      "**/*.json",
+      "**/Dockerfile",
+      "**/*.yml",
+      "**/*.md"
+    ],
+    "excludePatterns": [
+      "**/bin/**",
+      "**/obj/**",
+      "**/node_modules/**",
+      "**/*.min.js",
+      "**/dist/**"
+    ]
+  }
+}

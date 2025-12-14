@@ -79,6 +79,20 @@
       "output_encoding": "no-op"
     },
     {
+      "endpoint": "/pass-api/v1/secrets/{secretId}",
+      "method": "PATCH",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://pass-api:8080"],
+          "url_pattern": "/api/v1/secrets/{secretId}",
+          "method": "PATCH"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
       "endpoint": "/pass-api/v1/users",
       "method": "POST",
       "input_headers": ["*"],

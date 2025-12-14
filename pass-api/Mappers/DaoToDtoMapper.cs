@@ -13,7 +13,7 @@ public static class DaoToDtoMapper
         {
             Id = entity.Id,
             Title = entity.Title,
-            UserName = entity.Username,
+            Username = entity.Username,
             Password = Encoding.UTF8.GetString(entity.Password),
             Audit = entity.GetAudit()
         };
@@ -25,7 +25,7 @@ public static class DaoToDtoMapper
         {
             Id = entity.Id,
             Title = entity.Title,
-            UserName = entity.Username,
+            Username = entity.Username,
             Password = string.Empty,
             Audit = entity.GetAudit()
         };

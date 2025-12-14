@@ -77,7 +77,6 @@ export class Passwords implements OnInit {
 
     const master = window.prompt('Digite sua Master Password para visualizar a senha:');
     if (master === null) {
-      // User cancelled the prompt
       this.isLoadingDetails.set(false);
       this.isModalOpen.set(false);
       return;
@@ -105,8 +104,46 @@ export class Passwords implements OnInit {
   }
 
   onSecretUpdated(secret: SecretInterface) {
-    // Update local selection and refresh list
     this.selectedSecret.set(secret);
     this.loadSecrets();
+  }
+
+  onSecretDeleted() {
+    this.closeModal();
+    this.loadSecrets();
+  }
+
+  async copyPassword(event: Event, secretId: string) {
+    event.stopPropagation();
+
+    const master = window.prompt('Digite sua Master Password para copiar a senha:');
+    if (master === null) return;
+
+    this.secretsApi.getById(secretId, master).subscribe({
+      next: async (secret) => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(secret.password);
+            alert('Senha copiada!');
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = secret.password;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Senha copiada!');
+          }
+        } catch (err) {
+          console.error('Erro ao copiar senha:', err);
+          alert('Erro ao copiar senha');
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao buscar senha:', err);
+      },
+    });
   }
 }

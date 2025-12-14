@@ -1,7 +1,7 @@
 export interface SecretInterface {
   id: string;
   title: string;
-  userName: string;
+  username: string;
   password: string;
   url?: string;
   notes?: string;

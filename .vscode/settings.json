@@ -1,0 +1,29 @@
+{
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false
+  },
+  "github.copilot.advanced": {
+    "debug.overrideChatEngine": "",
+    "debug.useNodeFetcher": false,
+    "debug.testOverrideProxyUrl": "",
+    "debug.overrideProxyUrl": "",
+    "length": 500,
+    "temperature": ""
+  },
+  "github.copilot.chat.localeOverride": "pt-BR",
+  "files.associations": {
+    "*.cs": "csharp",
+    "*.csproj": "xml",
+    "*.json": "json",
+    "docker-compose*.yml": "dockercompose",
+    "Dockerfile*": "dockerfile"
+  },
+  "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+  "csharp.semanticHighlighting.enabled": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "angular.suggest.autoImports": true
+}

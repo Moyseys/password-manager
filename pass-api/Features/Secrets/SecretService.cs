@@ -37,7 +37,7 @@ public class SecretService(
         Secret secret =  new()
         {
             Title = payload.Title,
-            Username = payload.UserName,
+            Username = payload.Username,
             Password = CreateSecretPass(vaultKey, Encoding.UTF8.GetBytes(payload.Password)),
             UserId = userId
         };

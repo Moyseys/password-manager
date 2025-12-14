@@ -24,19 +24,21 @@ export class PasswordDetailModal {
   masterPassword = input<string | null>();
   close = output<void>();
   updated = output<SecretInterface>();
+  deleted = output<void>();
 
   private readonly secretsApi = inject(SecretsApi);
   private readonly fb = inject(FormBuilder);
 
   editing = signal(false);
   isSaving = signal(false);
+  isDeleting = signal(false);
   copyMessage = signal<string | null>(null);
 
   showPassword = signal(false);
 
   form: FormGroup = this.fb.group({
     title: ['', Validators.required],
-    userName: ['', Validators.required],
+    username: ['', Validators.required],
     password: ['', Validators.required],
   });
 
@@ -51,7 +53,7 @@ export class PasswordDetailModal {
   private _patchEffect = effect(() => {
     const s = this.secret?.();
     if (s) {
-      this.form.patchValue({ title: s.title, userName: s.userName, password: s.password });
+      this.form.patchValue({ title: s.title, username: s.username, password: s.password });
       this.form.disable();
       this.editing.set(false);
     }
@@ -67,10 +69,9 @@ export class PasswordDetailModal {
   }
 
   cancelEdit() {
-    // revert to original secret values
     const s = this.secret();
     if (s) {
-      this.form.patchValue({ title: s.title, userName: s.userName, password: s.password });
+      this.form.patchValue({ title: s.title, username: s.username, password: s.password });
     }
     this.form.disable();
     this.editing.set(false);
@@ -80,24 +81,24 @@ export class PasswordDetailModal {
     const s = this.secret();
     if (!s) return;
 
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
     let master = this.masterPassword?.() ?? null;
     if (!master) {
       master = window.prompt('Digite sua Master Password para salvar alterações:');
       if (master === null) {
-        return; // user cancelled
+        return;
       }
-    }
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
     }
 
     this.isSaving.set(true);
 
     const payload = {
       title: this.form.get('title')!.value,
-      username: this.form.get('userName')!.value,
+      username: this.form.get('username')!.value,
       password: this.form.get('password')!.value,
     } as { title?: string; username?: string; password?: string };
 
@@ -107,12 +108,36 @@ export class PasswordDetailModal {
         this.form.disable();
         this.editing.set(false);
         this.updated.emit(updated);
+        this.close.emit();
       },
       error: (err) => {
         console.error('Error saving secret:', err);
         this.isSaving.set(false);
-        this.copyMessage.set('Erro ao salvar');
-        setTimeout(() => this.copyMessage.set(null), 3000);
+      },
+    });
+  }
+
+  deleteSecret() {
+    const s = this.secret();
+    if (!s) return;
+
+    const confirmed = window.confirm(
+      `Tem certeza que deseja excluir "${s.title}"? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmed) return;
+
+    this.isDeleting.set(true);
+
+    this.secretsApi.delete(s.id).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.deleted.emit();
+        this.close.emit();
+      },
+      error: (err) => {
+        console.error('Error deleting secret:', err);
+        this.isDeleting.set(false);
       },
     });
   }
@@ -130,7 +155,6 @@ export class PasswordDetailModal {
       console.warn('Clipboard API failed, falling back', err);
     }
 
-    // Fallback: temporary textarea + execCommand
     try {
       const textarea = document.createElement('textarea');
       textarea.value = text;
