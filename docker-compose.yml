@@ -114,6 +114,8 @@ services:
     depends_on:
       pass-registry:
         condition: service_healthy
+    volumes:
+      - client-dist:/output
 
   pass-server:
     build:
@@ -132,6 +134,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./pass-server/certs:/etc/nginx/certs
+      - client-dist:/usr/share/nginx/html
     deploy:
       resources:
         limits:
@@ -143,3 +146,4 @@ services:
 
 volumes:
   db-data:
+  client-dist:
