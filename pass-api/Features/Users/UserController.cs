@@ -7,22 +7,18 @@ namespace PasswordManager.Features.Users;
 
 [ApiController]
 [Route("api/v1/users")]
-public class UserController : ControllerBase
+public class UserController(UserService userService) : ControllerBase
 {
-    private readonly UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private readonly UserService userService = userService;
 
     [HttpGet]
-    public IActionResult index()
+    public IActionResult Index()
     {
         return Ok("Oii");
     }
 
     [HttpPost]
-    public async Task<IActionResult> store([FromBody] CreateUserDto body)
+    public async Task<IActionResult> Store([FromBody] CreateUserDto body)
     {
         await this.userService.CreateUser(body);
         return NoContent();

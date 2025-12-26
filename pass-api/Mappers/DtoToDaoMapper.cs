@@ -1,6 +1,7 @@
 using System.Text;
 using PasswordManager.DAL.Entities;
 using PasswordManager.Features.Secrets.Dtos.Requests;
+using PasswordManager.Features.Users.Dtos;
 
 namespace PasswordManager.Mappers;
 
@@ -15,4 +16,18 @@ public static class DtoToDaoMapper
 
         return entity;
     }
+
+
+    public static User ToUser(this CreateUserDto dto, byte[] masterPasswordSalt)
+    {
+        return new User
+        {
+            Email = dto.Email,
+            Name = dto.Name,
+            Password = dto.Password,
+            PasswordHash = "",
+            MasterPasswordSalt = masterPasswordSalt
+        };
+    }
+
 }

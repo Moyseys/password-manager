@@ -6,60 +6,51 @@ using PasswordManager.DAL.Repositories;
 using PasswordManager.Features.Users.Dtos;
 using PasswordManager.Utils;
 using System.ComponentModel.DataAnnotations;
+using PasswordManager.Mappers;
 
 namespace PasswordManager.Features.Users.Services
 {
-    public class UserService
+    public class UserService(UserResitory userResitory, PasswordHasher<User> passwordHasher)
     {
-        private  UserResitory userResitory;
-        private  SecretKeyRepository secretKeyRepository;
-        private readonly PasswordHasher<User> passwordHasher;
-
-        public UserService(UserResitory userResitory, SecretKeyRepository secretKeyRepository, PasswordHasher<User> passwordHasher)
-        {
-            this.userResitory = userResitory;
-            this.passwordHasher = passwordHasher;
-            this.secretKeyRepository = secretKeyRepository;
-        }
+        private readonly UserResitory userResitory = userResitory;
+        private readonly PasswordHasher<User> passwordHasher = passwordHasher;
 
         public async Task<CreateUserDto> CreateUser(CreateUserDto payload)
         {
             var user = await userResitory.GetUserByEmailAsync(payload.Email);
             if (user != null) throw new InvalidDataException("User alredy exist");
             
-            
-            byte[] vaultKeyBytes = Aes.Create().Key;
-            byte[] masterPasswordSalt = new byte[32];
-            RandomNumberGenerator.Fill(masterPasswordSalt);
-            byte[] masterDerived = DeriveHelper.RFC2898(payload.MasterPassword, masterPasswordSalt);
+            var (secretKey, masterPasswordSalt) = GenerateVaultKeys(payload.MasterPassword);
 
-            var secretKey = AESHelper.Encrypt(masterDerived, vaultKeyBytes);
-
-            var newUser = new User
-            {
-                Email = payload.Email,
-                Name = payload.Name,
-                Password = payload.Password,
-                PasswordHash = "",
-                MasterPasswordSalt = masterPasswordSalt
-            };
+            var newUser = payload.ToUser(masterPasswordSalt);
             newUser.PasswordHash = passwordHasher.HashPassword(newUser, newUser.Password);
             
             var validationUser = ValidateCreateUser(newUser);
             if(validationUser != null && validationUser.Count() > 0)
                 throw new InvalidDataException(string.Join("; ", validationUser.Select(v => v.ErrorMessage)));
 
-            await userResitory.AddAsync(newUser);
-
-            var sk = new SecretKeyEntity
+            var secretKeyEntity = new SecretKeyEntity
             {
                 Key = secretKey,
+                User = newUser,
                 UserId = newUser.Id
             };
 
-
-            await secretKeyRepository.AddAsync(sk);
+            await userResitory.AddWithSecretKeyAsync(newUser, secretKeyEntity);
             return payload;
+        }
+
+        private (byte[] secretKey, byte[] salt) GenerateVaultKeys(string masterPassword)
+        {
+                    
+            byte[] vaultKeyBytes = Aes.Create().Key;
+            byte[] masterPasswordSalt = new byte[32];
+            RandomNumberGenerator.Fill(masterPasswordSalt);
+            byte[] masterDerived = DeriveHelper.RFC2898(masterPassword, masterPasswordSalt);
+
+            var secretKey = AESHelper.Encrypt(masterDerived, vaultKeyBytes);
+
+            return (secretKey, masterPasswordSalt);
         }
 
         public List<ValidationResult> ValidateCreateUser(User user)

@@ -29,7 +29,7 @@ public class SecretService(
 
     public async Task CreateSecret(SecretRequestCreateDto payload)
     {
-        var userId = _userContext.UserId;
+        var userId = _userContext.GetUserIdOrThrow();
         var userSecretKey = await GetUserSecretKey(userId);
 
         var vaultKey = ExtractVaultKey(payload.MasterPassword, userSecretKey.User!.MasterPasswordSalt, userSecretKey.Key);

@@ -6,8 +6,12 @@ namespace PasswordManager.Extensions;
 
 public static class QueryExtension
 {
+    //Todo transformar em um builder
+    //Todo adicionar SORT generico
     public static async Task<PageableDto<TDto>> WithPagination<TEntity, TDto>(this IQueryable<TEntity> query, Expression<Func<TEntity, TDto>> projection, PaginationDto pagination)
     {
+        if(pagination.Size <= 0) throw new BadHttpRequestException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
+        
         var totalItems = await query.CountAsync();
 
         var offSet = pagination.Size * (pagination.Page - 1); 

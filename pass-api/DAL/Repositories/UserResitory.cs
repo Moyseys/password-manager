@@ -27,4 +27,11 @@ public class UserResitory
         await context.User.AddAsync(u);
         await context.SaveChangesAsync();
     }
+
+    public async Task AddWithSecretKeyAsync(User user, SecretKey secretKey)
+    {
+        await context.User.AddAsync(user);
+        await context.SecretKey.AddAsync(secretKey);
+        await context.SaveChangesAsync();
+    }
 }
