@@ -2,10 +2,9 @@
 # Environment / secrets
 # -------------------------
 # Do NOT commit environment files with secrets. Keep local copies only.
-/pass-api/.env
-/pass-api/.env.*
-/.env
-/.env.prod
+.env
+.env.prod
+/devops/.env
 
 # -------------------------
 # Node / Angular

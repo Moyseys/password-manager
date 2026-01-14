@@ -1,0 +1,91 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+        reservations:
+          memory: 128M
+          cpus: "0.25"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  account:
+    # image: localhost:5000/account:latest
+    build:
+      context: ../monorepo-dotnet
+      dockerfile: apps/account/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__DefaultConnection=${CONNECTIONSTRING_POSTGRES}
+      - JwtSettings__SecretKey=${JWT_SECRET}
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+          cpus: "0.5"
+        reservations:
+          memory: 96M
+          cpus: "0.25"
+
+  vaultify:
+    # image: localhost:5000/vaultify:latest
+    build:
+      context: ../monorepo-dotnet
+      dockerfile: apps/Vaultify/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__DefaultConnection=${CONNECTIONSTRING_POSTGRES}
+      - JwtSettings__SecretKey=${JWT_SECRET}
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+          cpus: "0.5"
+        reservations:
+          memory: 96M
+          cpus: "0.25"
+  gw:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "${GW_PORT}:${GW_INTERNAL_PORT}"
+    restart: unless-stopped
+    volumes:
+      - ./gateway/krakend.json:/etc/krakend/krakend.json:ro
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+        reservations:
+          memory: 32M
+          cpus: "0.1"
+
+volumes:
+  db-data:
