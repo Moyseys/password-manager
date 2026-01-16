@@ -61,5 +61,8 @@ dist/
 out/
 .idea/
 
-#Nginx
-conf.d
+#Nginx - certificates only (not conf.d configs)
+devops/server/certs/**/*.pem
+devops/server/certs/**/*.key
+devops/registry/certs/**/*.pem
+devops/registry/certs/**/*.key
