@@ -5,6 +5,8 @@ services:
       context: ./registry
       dockerfile: Dockerfile
     restart: unless-stopped
+    networks:
+      - pass-network
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
     ports:
@@ -43,6 +45,8 @@ services:
       - "80:80"
       - "443:443"
     restart: unless-stopped
+    networks:
+      - pass-network
     environment:
       - GW_INTERNAL_PORT=${GW_INTERNAL_PORT}
       - REGISTRY_INTERNAL_PORT=${REGISTRY_INTERNAL_PORT}
@@ -56,3 +60,8 @@ services:
         reservations:
           memory: 32M
           cpus: "0.1"
+
+networks:
+  pass-network:
+    external: true
+    name: pass-network

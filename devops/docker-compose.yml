@@ -1,7 +1,10 @@
 services:
   db:
+    container_name: pass-db
     image: postgres:15-alpine
     restart: unless-stopped
+    networks:
+      - pass-network
     ports:
       - "${DB_PORT}:5432"
     environment:
@@ -25,11 +28,14 @@ services:
       retries: 3
 
   account:
+    container_name: pass-account
     image: localhost:${REGISTRY_PORT}/account:latest
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - pass-network
     env_file:
       - .env
     environment:
@@ -45,11 +51,14 @@ services:
           cpus: "0.25"
 
   vaultify:
+    container_name: pass-vaultify
     image: localhost:${REGISTRY_PORT}/vaultify:latest
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - pass-network
     env_file:
       - .env
     environment:
@@ -64,10 +73,13 @@ services:
           memory: 96M
           cpus: "0.25"
   gw:
+    container_name: pass-gw
     image: localhost:${REGISTRY_PORT}/gw:latest
     ports:
       - "${GW_PORT}:${GW_INTERNAL_PORT}"
     restart: unless-stopped
+    networks:
+      - pass-network
     volumes:
       - ./gateway/krakend.json:/etc/krakend/krakend.json:ro
     deploy:
@@ -81,3 +93,8 @@ services:
 
 volumes:
   db-data:
+
+networks:
+  pass-network:
+    driver: bridge
+    name: pass-network
