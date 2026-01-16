@@ -1,5 +1,6 @@
 services:
   registry:
+    container_name: pass-registry
     build:
       context: ./registry
       dockerfile: Dockerfile
@@ -34,6 +35,7 @@ services:
       start_period: 40s
 
   server:
+    container_name: pass-server
     build:
       context: ./server
       dockerfile: Dockerfile
