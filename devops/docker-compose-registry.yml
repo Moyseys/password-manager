@@ -63,5 +63,5 @@ services:
 
 networks:
   pass-network:
-    external: true
+    driver: bridge
     name: pass-network

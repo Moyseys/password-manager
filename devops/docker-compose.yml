@@ -96,5 +96,5 @@ volumes:
 
 networks:
   pass-network:
-    driver: bridge
+    external: true
     name: pass-network
