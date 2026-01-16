@@ -4,8 +4,8 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 
 #Copy template configuration files
-COPY conf.d/gateway /etc/nginx/templates/gateway.conf.template
-COPY conf.d/registry /etc/nginx/templates/registry.conf.template
+COPY conf.d/gateway.conf /etc/nginx/templates/gateway.conf.template
+COPY conf.d/registry.conf /etc/nginx/templates/registry.conf.template
 
 #Copy custom configuration files
 COPY conf.d/ /etc/nginx/conf.d/
