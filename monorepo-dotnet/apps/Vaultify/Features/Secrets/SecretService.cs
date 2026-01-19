@@ -46,15 +46,18 @@ public class SecretService(
         await _secretRepository.AddAsync(secret);
     }
 
-    public async Task<PageableDto<SecretResponseListDto>> ListSecrets(PaginationDto pagination)
+    public async Task<PageableDto<SecretResponseListDto>> ListSecrets(PaginationDto pagination, string? search)
     {
         var userId = _userContext.GetUserIdOrThrow();
         _logger.LogInformation("[ListSecrets] UserId: {UserId}", userId);
         
-        var query = _context.Secret
+        IQueryable<Secret> query = _context.Secret
             .AsNoTracking()
-            .Where((s) => s.UserId == userId && s.Active.Equals(true))
+            .Where((s) => s.UserId == userId && s.Active )
             .OrderByDescending(s => s.CreatedAt);
+
+        if (!string.IsNullOrEmpty(search))
+           query = query.Where(s => s.Title.ToLower().Contains(search.ToLower()));
         
         return await query.WithPagination(s => s.ToSecretReponseListDto(), pagination);
     }

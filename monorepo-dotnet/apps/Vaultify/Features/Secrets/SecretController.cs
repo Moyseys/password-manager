@@ -18,9 +18,9 @@ public class SecretController(SecretService secretService, ILogger<SecretControl
     }
 
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] PaginationDto pagination)
+    public async Task<IActionResult> List([FromQuery] PaginationDto pagination, [FromQuery] string? search)
     {
-        return Ok(await _secretService.ListSecrets(pagination));
+        return Ok(await _secretService.ListSecrets(pagination, search));
     }
 
     [HttpPost("{secretId}")]
