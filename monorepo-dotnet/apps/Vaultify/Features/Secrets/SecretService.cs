@@ -6,6 +6,7 @@ using DAL.Dtos;
 using DAL.Entities;
 using DAL.Extensions;
 using DAL.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Vaultify.Core.Mappers;
 using Vaultify.Features.Secrets.Dtos.Requests;
 using Vaultify.Features.Secrets.Dtos.Response;
