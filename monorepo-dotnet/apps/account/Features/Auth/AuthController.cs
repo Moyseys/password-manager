@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Account.Features.Auth;
 
 [ApiController]
-[Route("api/v1/auth")]
 [Authorize]
+[Route("api/v1/auth")]
 public class AuthController(AuthService authController, CookiesSettings cookiesSettings) : ControllerBase
 {
     private readonly AuthService _authService = authController;
@@ -23,7 +23,7 @@ public class AuthController(AuthService authController, CookiesSettings cookiesS
     }
 
     [HttpGet("check")]
-    public async Task<ActionResult> Check()
+    public ActionResult Check()
     {
         return Ok();
     }

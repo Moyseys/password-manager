@@ -80,16 +80,14 @@ services:
     restart: unless-stopped
     networks:
       - pass-network
-    volumes:
-      - ./gateway/krakend.json:/etc/krakend/krakend.json:ro
-    deploy:
-      resources:
-        limits:
-          memory: 64M
-          cpus: "0.25"
-        reservations:
-          memory: 32M
-          cpus: "0.1"
+HttpGet    deploy:
+  resources:
+    limits:
+      memory: 64M
+      cpus: "0.25"
+    reservations:
+      memory: 32M
+      cpus: "0.1"
 
 volumes:
   db-data:
