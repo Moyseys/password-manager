@@ -1,4 +1,4 @@
-using System.Text;
+using System.Net;
 using DAL.Entities;
 using DAL.Extensions;
 using SharedDto.Dtos;
@@ -14,10 +14,13 @@ public static class DaoToDtoMapper
             Id = entity.Id,
             Title = entity.Title,
             Username = entity.Username,
-            Password = Encoding.UTF8.GetString(entity.Password),
+            Website = entity.Website,
+            CipherPassword = entity.CipherPassword,
+            IV = entity.IV,
             Audit = entity.GetAudit()
         };
     }
+
 
     public static SecretResponseListDto ToSecretReponseListDto(this Secret entity)
     {

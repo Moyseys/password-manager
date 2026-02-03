@@ -30,8 +30,8 @@ public class SecretRepository
         return await _context.Secret.Where((s) => s.Id == secretId).FirstOrDefaultAsync();
     }
 
-    public async Task <Secret?> GetSecretByIdAndUserId(Guid userId, Guid secretId)
+    public async Task<Secret?> GetSecretByIdAndUserId(Guid userId, Guid secretId)
     {
-        return await _context.Secret.Where(s => s.UserId.Equals(userId) && s.Id.Equals(secretId)).FirstAsync();
+        return await _context.Secret.Where(s => s.UserId.Equals(userId) && s.Id.Equals(secretId)).FirstOrDefaultAsync();
     }
 }

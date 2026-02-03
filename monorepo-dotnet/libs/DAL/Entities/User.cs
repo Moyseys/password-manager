@@ -19,9 +19,7 @@ public class User : BaseEntity<Guid>
     [NotMapped()]
     public required string Password { get; set; }
 
-    public required byte[] MasterPasswordSalt { get; set; }
-
     public ICollection<Secret>? Secrets { get; set; }
-    
-    public SecretKey? SecretKey { get; set;} //Opcional para 1:1 
+
+    public SecretKey? SecretKey { get; set; } //Opcional para 1:1 
 }

@@ -2,5 +2,5 @@ namespace Vaultify.Features.SecretKeyF;
 
 public class SecretKeyRequestDto
 {
-    public required string Key {get; set;}
+    public required byte[] Key { get; set; }
 }

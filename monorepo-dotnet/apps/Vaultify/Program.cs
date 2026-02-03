@@ -1,6 +1,7 @@
 using System.Text.Json;
-using Auth.Middleware;
+using Account.Setting;
 using Auth.Setting;
+using Auth.Extension;
 using Core.Contexts;
 using Core.Exceptions;
 using DAL;
@@ -8,6 +9,7 @@ using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Vaultify.Features.SecretKeyF;
 using Vaultify.Features.Secrets;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,15 +22,22 @@ builder.Services.AddControllers().AddJsonOptions((options) =>
     options.JsonSerializerOptions.WriteIndented = false; // Produz JSON conpacto
 });
 
-//JwtSetting
-builder.Services.AddSingleton(
-    builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>() 
-        ?? throw new InvalidOperationException("JwtSettings configuration is missing")
-);
+//Settings options
+builder.Services.AddControllers().AddJsonOptions((options) =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Converte propriedade para camelcase
+    options.JsonSerializerOptions.WriteIndented = false; // Produz JSON conpacto
+});
 
+//AppSetting options
+var jwtSettings = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JwtSettings configuration is missing");
+
+var cookieSettings = builder.Configuration.GetSection(nameof(CookiesSettings)).Get<CookiesSettings>()
+        ?? throw new InvalidOperationException("Cookies configuration is missing");
 
 //Banco
-builder.Services.AddDbContext<PasswordManagerDbContext>((options) => 
+builder.Services.AddDbContext<PasswordManagerDbContext>((options) =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
@@ -51,11 +60,21 @@ builder.Services.AddScoped<SecretKeyService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+//Auth
+builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie);
+
+//OpenApi
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
 
 //Middleware
 app.UseExceptionHandler();
-app.UseMiddleware<AuthMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
+
+app.MapScalarApiReference("doc");
+app.MapOpenApi();
 
 app.Run();

@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using DAL.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Extensions;
@@ -13,7 +12,8 @@ public static class QueryExtension
     {
         Console.WriteLine($"[WithPagination] Início - Page: {pagination.Page}, Size: {pagination.Size}");
         
-        if(pagination.Size <= 0) throw new BadHttpRequestException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
+        if(pagination.Page <= 0) throw new InvalidDataException($"{nameof(pagination.Page)}: Page number must be greater than zero.");
+        if(pagination.Size <= 0) throw new InvalidDataException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
 
         var totalItems = await query.CountAsync();
         Console.WriteLine($"[WithPagination] TotalItems: {totalItems}");

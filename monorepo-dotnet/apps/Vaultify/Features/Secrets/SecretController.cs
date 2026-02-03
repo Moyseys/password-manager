@@ -1,10 +1,13 @@
 using DAL.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedDto.Dtos;
 using Vaultify.Features.Secrets;
 using Vaultify.Features.Secrets.Dtos.Requests;
 
 [ApiController]
 [Route("api/v1/secrets")]
+[Authorize]
 public class SecretController(SecretService secretService, ILogger<SecretController> logger) : ControllerBase
 {
     private readonly SecretService _secretService = secretService;
@@ -23,15 +26,17 @@ public class SecretController(SecretService secretService, ILogger<SecretControl
         return Ok(await _secretService.ListSecrets(pagination, search));
     }
 
-    [HttpPost("{secretId}")]
-    public async Task<IActionResult> Show(string secretId, [FromBody] SecretRequestShowDto payload)
+    [HttpGet("{secretId}")]
+    public async Task<IActionResult> Show(string secretId)
     {
-        return Ok(await _secretService.GetSecret(Guid.Parse(secretId), payload));
+        return Ok(await _secretService.GetSecret(Guid.Parse(secretId)));
     }
 
     [HttpPatch("{secretId}")]
     public async Task<IActionResult> Update(Guid secretId, [FromBody] SecretRequestUpdateDto payload, CancellationToken cancellationToken)
     {
-        return Ok(await _secretService.UpdateSecret(secretId, payload, cancellationToken));
+        return Ok(
+            // await _secretService.UpdateSecret(secretId, payload, cancellationToken)
+            );
     }
 }

@@ -3,6 +3,7 @@ using System;
 using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(PasswordManagerDbContext))]
-    partial class PasswordManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202213757_refactory")]
+    partial class refactory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,11 +36,6 @@ namespace DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("active");
 
-                    b.Property<byte[]>("CipherPassword")
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("cipher_password");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -54,10 +52,10 @@ namespace DAL.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
-                    b.Property<byte[]>("IV")
+                    b.Property<byte[]>("Password")
                         .IsRequired()
                         .HasColumnType("bytea")
-                        .HasColumnName("iv");
+                        .HasColumnName("password");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -80,10 +78,6 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("username");
-
-                    b.Property<string>("Website")
-                        .HasColumnType("text")
-                        .HasColumnName("website");
 
                     b.HasKey("Id");
 

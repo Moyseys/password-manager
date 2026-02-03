@@ -1,23 +1,25 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vaultify.Features.SecretKeyF;
+using Vaultify.Features.SecretKeyF.Dtos;
 
 
 [ApiController]
 [Route("api/v1/secret-key")]
-public class SecretKeyController : ControllerBase
+[Authorize]
+public class SecretKeyController(SecretKeyService secretKeyService) : ControllerBase
 {
-    private readonly SecretKeyService secretKeyService;
+    private readonly SecretKeyService secretKeyService = secretKeyService;
 
-    public SecretKeyController(SecretKeyService secretKeyService)
+    [HttpPost]
+    public async Task<ActionResult<SecretKeyResponseDto>> Create([FromBody] SecretKeyRequestDto payload)
     {
-        this.secretKeyService = secretKeyService;
+        return Ok(await secretKeyService.CreateSecretKey(payload));
     }
 
-    [HttpPatch]
-    async public Task<ActionResult<SecretKeyRequestDto>> Update([FromBody] SecretKeyRequestDto payload)
+    [HttpGet]
+    public async Task<ActionResult<SecretKeyResponseDto>> Show()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value ?? throw new InvalidOperationException("Invalid user");
-        return Ok("Not implemented");
+        return Ok(await secretKeyService.GetCurrentSecretKey());
     }
 }

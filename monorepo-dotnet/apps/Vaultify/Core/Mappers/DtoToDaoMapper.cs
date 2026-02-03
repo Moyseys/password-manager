@@ -1,18 +1,31 @@
-using System.Text;
 using DAL.Entities;
+using Vaultify.Features.SecretKeyF;
 using Vaultify.Features.Secrets.Dtos.Requests;
 
 namespace Vaultify.Core.Mappers;
 
 public static class DtoToDaoMapper
 {
-    public static Secret ToSecretRequestUpdate(this Secret entity, SecretRequestUpdateDto dto)
+    public static SecretKey ToSecretKeyEntity(this SecretKeyRequestDto dto, Guid userId, byte[] keyBytes, byte[] salt)
     {
-        if(dto.Title != null) entity.Title = dto.Title;
-        if(dto.Username != null) entity.Username = dto.Username;
-        if(dto.Password != null) entity.Password = Encoding.UTF8.GetBytes(dto.Password);
-        if(dto.Active != null) entity.Active = dto.Active.Value;
+        return new SecretKey
+        {
+            UserId = userId,
+            Key = keyBytes,
+            KeySalt = salt
+        };
+    }
 
-        return entity;
+    public static Secret ToSecretEntity(this SecretRequestCreateDto dto, Guid userId)
+    {
+        return new Secret
+        {
+            Title = dto.Title,
+            Username = dto.Username,
+            Website = dto.Website,
+            CipherPassword = dto.CipherPassword,
+            IV = dto.IV,
+            UserId = userId
+        };
     }
 }

@@ -20,7 +20,7 @@ public class UserResitory
     public async Task<User?> GetUserById(Guid id)
     {
         return await context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
-    } 
+    }
 
     public async Task AddAsync(User u)
     {
@@ -28,10 +28,9 @@ public class UserResitory
         await context.SaveChangesAsync();
     }
 
-    public async Task AddWithSecretKeyAsync(User user, SecretKey secretKey)
+    public async Task AddWithSecretKeyAsync(User user)
     {
         await context.User.AddAsync(user);
-        await context.SecretKey.AddAsync(secretKey);
         await context.SaveChangesAsync();
     }
 }
