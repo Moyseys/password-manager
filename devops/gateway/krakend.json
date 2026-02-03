@@ -4,7 +4,10 @@
   "name": "krakend",
   "extra_config": {
     "security/cors": {
-      "allow_origins": ["http://localhost:4200", "https://pass.moyseys.com"],
+      "allow_origins": [
+        "http://local.pass.moyseys.com:4200",
+        "https://pass.moyseys.com"
+      ],
       "allow_methods": [
         "GET",
         "POST",
