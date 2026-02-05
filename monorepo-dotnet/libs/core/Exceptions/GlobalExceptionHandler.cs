@@ -14,9 +14,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         await BuildResponse(detail, httpContext, cancellationToken);
 
-        if(detail.Status == StatusCodes.Status500InternalServerError)
-            _logger.LogError(exception, "Unhandled exception occurred: {ExceptionType} - {Message}", exception.GetType().Name, exception.Message);
-        
+        _logger.LogError(exception, "Unhandled exception occurred: {ExceptionType} - {Message}", exception.GetType().Name, exception.Message);
+
         return true; //Indica que o erro foi tratado
     }
 
@@ -44,9 +43,14 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     .SetDetail(exception.Message)
                     .SetTitle("Conflict")
                     .Build(),
+            FormatException => new ExceptionDetailBuilder()
+                    .SetStatus(StatusCodes.Status400BadRequest)
+                    .SetDetail("The provided data format is invalid. Please verify your input and try again.")
+                    .SetTitle("Invalid format")
+                    .Build(),
             _ => new ExceptionDetailBuilder()
         };
-    } 
+    }
 
     private static async Task BuildResponse(ExceptionDetailBuilder exceptionDetail, HttpContext httpContext, CancellationToken cancellation)
     {

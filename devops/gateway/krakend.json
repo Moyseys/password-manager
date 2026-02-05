@@ -146,14 +146,28 @@
     },
     {
       "endpoint": "/vaultify/v1/secret-key",
-      "method": "PATCH",
+      "method": "POST",
       "input_headers": ["*"],
       "input_query_strings": ["*"],
       "backend": [
         {
           "host": ["http://vaultify:8080"],
           "url_pattern": "/api/v1/secret-key",
-          "method": "PATCH"
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/vaultify/v1/secret-key",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/secret-key",
+          "method": "GET"
         }
       ],
       "output_encoding": "no-op"

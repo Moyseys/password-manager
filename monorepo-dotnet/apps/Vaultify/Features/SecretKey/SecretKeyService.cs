@@ -22,9 +22,7 @@ public class SecretKeyService(
         if (await _secretKeyRepository.ExistByUserId(userId))
             throw new ConflictException("Secret key already exists for this user");
 
-        var salt = RandomNumberGenerator.GetBytes(16);
-
-        var secretKey = payload.ToSecretKeyEntity(userId, payload.Key, salt);
+        var secretKey = payload.ToSecretKeyEntity(userId);
 
         await _secretKeyRepository.AddAsync(secretKey);
 

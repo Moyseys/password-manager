@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Account.Features.Users.Services;
 using Account.Setting;
+using Scalar.AspNetCore;
 using Auth.Extension;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,11 +57,16 @@ builder.Services.AddHttpContextAccessor();
 //Auth
 builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie);
 
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapScalarApiReference("doc");
+app.MapOpenApi();
 
 app.Run();

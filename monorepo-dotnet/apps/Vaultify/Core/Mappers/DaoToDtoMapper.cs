@@ -13,6 +13,14 @@ public static class DaoToDtoMapper
 		return new SecretKeyResponseDto
 		{
 			Key = Convert.ToBase64String(entity.Key),
+			KeySize = entity.KeySize,
+			KeyIV = Convert.ToBase64String(entity.KeyIV),
+			Salt = Convert.ToBase64String(entity.Salt),
+			SaltSize = entity.SaltSize,
+			Iterations = entity.Iterations,
+			Algorithm = entity.Algorithm,
+			HashAlgorithm = entity.HashAlgorithm,
+			DerivationAlgorithm = entity.DerivationAlgorithm,
 			UserId = entity.UserId.ToString()
 		};
 	}
