@@ -6,6 +6,7 @@
     "security/cors": {
       "allow_origins": [
         "http://local.pass.moyseys.com:4200",
+        "https://local.pass.moyseys.com:4200",
         "https://pass.moyseys.com"
       ],
       "allow_methods": [
@@ -118,14 +119,14 @@
     },
     {
       "endpoint": "/vaultify/v1/secrets/{secretId}",
-      "method": "POST",
+      "method": "GET",
       "input_headers": ["*"],
       "input_query_strings": ["*"],
       "backend": [
         {
           "host": ["http://vaultify:8080"],
           "url_pattern": "/api/v1/secrets/{secretId}",
-          "method": "POST"
+          "method": "GET"
         }
       ],
       "output_encoding": "no-op"
