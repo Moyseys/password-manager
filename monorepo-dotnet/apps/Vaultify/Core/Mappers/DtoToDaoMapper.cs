@@ -37,8 +37,8 @@ public static class DtoToDaoMapper
             Title = dto.Title,
             Username = dto.Username,
             Website = dto.Website,
-            CipherPassword = dto.CipherPassword,
-            IV = dto.IV,
+            CipherPassword = Convert.FromBase64String(dto.CipherPassword),
+            IV = Convert.FromBase64String(dto.IV),
             UserId = userId
         };
     }

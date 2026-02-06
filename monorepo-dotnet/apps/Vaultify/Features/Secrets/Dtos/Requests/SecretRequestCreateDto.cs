@@ -13,8 +13,8 @@ public class SecretRequestCreateDto
     public string? Website { get; set; }
 
     [Required]
-    public required byte[] CipherPassword { get; set; }
+    public required string CipherPassword { get; set; }
 
     [Required]
-    public required byte[] IV { get; set; }
+    public required string IV { get; set; }
 }

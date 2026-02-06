@@ -56,19 +56,20 @@ public class SecretService(
         return secret.ToSecretResponseDto();
     }
 
-    public async Task<SecretResponseUpdateDto> UpdateSecret(Guid secretId, SecretRequestUpdateDto payload, CancellationToken cancellationToken)
+    public async Task<SecretRequestUpdateDto> UpdateSecret(Guid secretId, SecretRequestUpdateDto payload, CancellationToken cancellationToken)
     {
-        //TODO Criar validação condicional
         var secret = await GetUserSecret(_userContext.UserId, secretId);
 
-        // secret.ToSecretRequestUpdateDto(payload);
+        _logger.LogInformation("[UpdateSecret] Updating secret {SecretId} for user {UserId}", secretId, _userContext.UserId);
 
+        secret.ToSecretRequestUpdateDto(payload);
         await _context.SaveChangesAsync(cancellationToken);
-        return new SecretResponseUpdateDto(secret.Title, secret.Username, "*****");
+
+        return payload;
     }
 
 
-    private async Task<Secret?> GetUserSecret(Guid? userId, Guid secretId)
+    private async Task<Secret> GetUserSecret(Guid? userId, Guid secretId)
     {
         if (userId == null) throw new UnauthorizedAccessException("User is not authenticated!");
         return await _secretRepository.GetSecretByIdAndUserId(userId.Value, secretId) ?? throw new InvalidDataException("Secret not found!");

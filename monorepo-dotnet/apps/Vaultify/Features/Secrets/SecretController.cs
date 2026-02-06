@@ -35,8 +35,6 @@ public class SecretController(SecretService secretService, ILogger<SecretControl
     [HttpPatch("{secretId}")]
     public async Task<IActionResult> Update(Guid secretId, [FromBody] SecretRequestUpdateDto payload, CancellationToken cancellationToken)
     {
-        return Ok(
-            // await _secretService.UpdateSecret(secretId, payload, cancellationToken)
-            );
+        return Ok(await _secretService.UpdateSecret(secretId, payload, cancellationToken));
     }
 }
