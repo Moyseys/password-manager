@@ -50,8 +50,11 @@ services:
     environment:
       - GW_INTERNAL_PORT=${GW_INTERNAL_PORT}
       - REGISTRY_INTERNAL_PORT=${REGISTRY_INTERNAL_PORT}
+      - GW_DOMAIN=${GW_DOMAIN}
+      - REGISTRY_DOMAIN=${REGISTRY_DOMAIN}
+      - CERT_PATH_HOST=${CERT_PATH_HOST}
     volumes:
-      - ./server/certs:/etc/nginx/certs
+      - ${CERT_PATH_HOST}:/etc/nginx/certs:ro
     deploy:
       resources:
         limits:

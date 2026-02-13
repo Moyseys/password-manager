@@ -9,6 +9,6 @@ COPY conf.d/registry.conf /etc/nginx/templates/registry.conf.template
 
 #Copy custom configuration files
 COPY conf.d/ /etc/nginx/conf.d/
-COPY certs/ /etc/nginx/certs/
+COPY ${CERT_PATH_HOST}/ /etc/nginx/certs/
 
 EXPOSE 80 443
