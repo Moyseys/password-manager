@@ -4,7 +4,7 @@
 
 server {
     listen       443 ssl;
-    server_name  registry.pass.moyseys.com;
+    server_name  ${REGISTRY_DOMAIN};
 
     include conf.d/tls-registry.conf;
     include conf.d/ssl-common.conf;
