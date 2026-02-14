@@ -11,10 +11,10 @@ public class AESHelper
         var iv = aes.IV;
 
         aes.Key = secretKey;
-        
+
         using var encryptor = aes.CreateEncryptor();
         using var memoryStream = new MemoryStream();
-        memoryStream.Write(iv, 0, iv.Length); // Anexa o IV no início
+        memoryStream.Write(iv, 0, iv.Length); // Append the IV at the beginning
 
         using var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
         cryptoStream.Write(encryptedContent, 0, encryptedContent.Length);
@@ -23,7 +23,8 @@ public class AESHelper
         return memoryStream.ToArray();
     }
 
-    public static byte[] Decrypt(byte[] secretKey, byte[] encryptedContent){
+    public static byte[] Decrypt(byte[] secretKey, byte[] encryptedContent)
+    {
         using var aes = Aes.Create();
 
         var iv = new byte[16];

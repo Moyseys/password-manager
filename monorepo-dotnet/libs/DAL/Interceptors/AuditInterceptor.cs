@@ -16,15 +16,15 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
     )
     {
         var context = dbContextEventData.Context;
-        if(context == null) return base.SavingChangesAsync(dbContextEventData, result, cancellation); 
-        
+        if (context == null) return base.SavingChangesAsync(dbContextEventData, result, cancellation);
+
         var entries = context.ChangeTracker
-            .Entries<BaseAuditEntity>() //! Aqui é retornado somente Entities que herdam de BaseAuditEntity
+            .Entries<BaseAuditEntity>() //! Only returns Entities that inherit from BaseAuditEntity
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
-        foreach(var entry in entries)
+        foreach (var entry in entries)
         {
-            if(entry.State == EntityState.Added)
+            if (entry.State == EntityState.Added)
             {
                 entry.Entity.CreatedAt = DateTime.UtcNow;
                 entry.Entity.CreatedBy = _userContext.UserId;
@@ -32,7 +32,7 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
             else if (entry.State == EntityState.Modified)
             {
                 var deleteAtProp = entry.Property(nameof(BaseEntity<Guid>.Active));
-                var isSoftDelete = deleteAtProp.IsModified 
+                var isSoftDelete = deleteAtProp.IsModified
                     && deleteAtProp.CurrentValue != null
                     && deleteAtProp.CurrentValue.Equals(false);
                 if (isSoftDelete)

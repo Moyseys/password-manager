@@ -10,15 +10,15 @@ public static class QueryExtension
 {
     private static async Task<PaginationInfo> GetPagination<TEntity>(IQueryable<TEntity> query, PaginationDto pagination)
     {
-        Console.WriteLine($"[WithPagination] Início - Page: {pagination.Page}, Size: {pagination.Size}");
-        
-        if(pagination.Page <= 0) throw new InvalidDataException($"{nameof(pagination.Page)}: Page number must be greater than zero.");
-        if(pagination.Size <= 0) throw new InvalidDataException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
+        Console.WriteLine($"[WithPagination] Start - Page: {pagination.Page}, Size: {pagination.Size}");
+
+        if (pagination.Page <= 0) throw new InvalidDataException($"{nameof(pagination.Page)}: Page number must be greater than zero.");
+        if (pagination.Size <= 0) throw new InvalidDataException($"{nameof(pagination.Size)}: Pagination size must be greater than zero.");
 
         var totalItems = await query.CountAsync();
         Console.WriteLine($"[WithPagination] TotalItems: {totalItems}");
 
-        var offSet = pagination.Size * (pagination.Page - 1); 
+        var offSet = pagination.Size * (pagination.Page - 1);
 
         return new PaginationInfo(totalItems, offSet, (int)Math.Ceiling((decimal)totalItems / pagination.Size));
     }
@@ -30,7 +30,7 @@ public static class QueryExtension
     {
         var pageInfo = await GetPagination(query, pagination);
         var items = await query.Select(projection).Skip(pageInfo.OffSet).Take(pagination.Size).ToListAsync();
-        
+
         return new PageableDto<TDto>()
         {
             Page = pagination.Page,

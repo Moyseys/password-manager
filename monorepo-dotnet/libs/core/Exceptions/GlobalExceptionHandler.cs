@@ -16,7 +16,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         _logger.LogError(exception, "Unhandled exception occurred: {ExceptionType} - {Message}", exception.GetType().Name, exception.Message);
 
-        return true; //Indica que o erro foi tratado
+        return true; // Indicates that the error was handled
     }
 
     private ExceptionDetailBuilder CreateExceptionDetail(Exception exception)

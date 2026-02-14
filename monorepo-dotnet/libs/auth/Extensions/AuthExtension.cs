@@ -51,7 +51,7 @@ public static class AuthExtension
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "Erro no AuthExtension: {Message}", ex.Message);
+                        logger?.LogError(ex, "Error in AuthExtension: {Message}", ex.Message);
                     }
                     return Task.CompletedTask;
                 },
