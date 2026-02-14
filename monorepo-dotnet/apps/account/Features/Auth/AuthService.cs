@@ -11,28 +11,28 @@ using Account.Setting;
 namespace Account.Features.Auth;
 
 public class AuthService(
-    UserResitory userResitory, 
-    PasswordHasher<User> passwordHasher, 
-    JwtSettings jwtSettings, 
-    IHttpContextAccessor httpContextAccessor, 
+    UserResitory userResitory,
+    PasswordHasher<User> passwordHasher,
+    JwtSettings jwtSettings,
+    IHttpContextAccessor httpContextAccessor,
     CookiesSettings cookiesSettings)
 {
     private readonly PasswordHasher<User> passwordHasher = passwordHasher;
     private readonly UserResitory userResitory = userResitory;
     private readonly JwtSettings jwtSettings = jwtSettings;
-    private readonly HttpContext httpContext = httpContextAccessor.HttpContext 
+    private readonly HttpContext httpContext = httpContextAccessor.HttpContext
         ?? throw new ArgumentNullException(nameof(httpContextAccessor), "HttpContext is null.");
     private readonly CookiesSettings cookiesSettings = cookiesSettings;
 
     public async Task<LoginResponseDto> Token(LoginRequestDto payload)
     {
-        User? user = await userResitory.GetUserByEmailAsync(payload.Email) 
-            ?? throw new InvalidDataException("Email not registered!");
-        
-        var verifyPass = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, payload.Password);
-        if(verifyPass != PasswordVerificationResult.Success) throw new InvalidDataException("Invalid password!");
+        User? user = await userResitory.GetUserByEmailAsync(payload.Email)
+            ?? throw new InvalidDataException("Invalid credentials!");
 
-    
+        var verifyPass = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, payload.Password);
+        if (verifyPass != PasswordVerificationResult.Success) throw new InvalidDataException("Invalid credentials!");
+
+
         SetAuthCookie(httpContext, GenToken(user));
 
         return new LoginResponseDto
@@ -44,7 +44,8 @@ public class AuthService(
 
     private void SetAuthCookie(HttpContext context, string token)
     {
-        var cookieOptions = new CookieOptions{
+        var cookieOptions = new CookieOptions
+        {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
@@ -56,8 +57,8 @@ public class AuthService(
 
     private string GenToken(User user)
     {
-        var payload = new TokenPayloadDto(){ Id = user.Id, Email = user.Email, Name = user.Name};
-        
+        var payload = new TokenPayloadDto() { Id = user.Id, Email = user.Email, Name = user.Name };
+
         return TokenService.GenerateTokenJwt(jwtSettings, payload);
     }
 }
