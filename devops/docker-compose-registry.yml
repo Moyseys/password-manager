@@ -54,7 +54,7 @@ services:
       - REGISTRY_DOMAIN=${REGISTRY_DOMAIN}
       - CERT_PATH_HOST=${CERT_PATH_HOST}
     volumes:
-      - ${CERT_PATH_HOST}:/etc/nginx/certs:ro
+      - ${CERT_BASE}:${CERT_BASE}:ro
     deploy:
       resources:
         limits:

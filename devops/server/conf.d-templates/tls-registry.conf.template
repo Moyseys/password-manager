@@ -1,2 +1,2 @@
-ssl_certificate     /etc/nginx/certs/${REGISTRY_DOMAIN}/fullchain.pem;
-ssl_certificate_key /etc/nginx/certs/${REGISTRY_DOMAIN}/privkey.pem;
+ssl_certificate     ${CERT_PATH_HOST}/${REGISTRY_DOMAIN}/fullchain.pem;
+ssl_certificate_key ${CERT_PATH_HOST}/${REGISTRY_DOMAIN}/privkey.pem;
