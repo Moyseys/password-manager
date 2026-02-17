@@ -11,6 +11,7 @@ using Vaultify.Features.SecretKeyF;
 using Vaultify.Features.Secrets;
 using Scalar.AspNetCore;
 using Vaultify.Features.Dashboard;
+using DAL.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,16 +38,19 @@ var jwtSettings = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtS
 var cookieSettings = builder.Configuration.GetSection(nameof(CookiesSettings)).Get<CookiesSettings>()
         ?? throw new InvalidOperationException("Cookies configuration is missing");
 
-//Banco
-builder.Services.AddDbContext<PasswordManagerDbContext>((options) =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
 //HttpContext
 builder.Services.AddHttpContextAccessor();
-
-//Contexts
 builder.Services.AddScoped<UserContext>();
+
+//Interceptors
+builder.Services.AddScoped<AuditInterceptor>();
+
+//Banco
+builder.Services.AddDbContext<PasswordManagerDbContext>((ServiceProvider, options) =>
+{
+    var auditInterceptor = ServiceProvider.GetRequiredService<AuditInterceptor>();
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).AddInterceptors(auditInterceptor);
+});
 
 //Repositories
 builder.Services.AddScoped<SecretRepository>();

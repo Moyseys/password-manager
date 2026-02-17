@@ -12,7 +12,6 @@ public class PasswordManagerDbContext : DbContext
     public DbSet<SecretKey> SecretKey { get; set; }
     public DbSet<DashboardVaultify> DashboardVaultify { get; set; }
 
-    //TODO indexar colunas pricipais
     public PasswordManagerDbContext(DbContextOptions contextOptions) : base(contextOptions) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -13,6 +13,6 @@ public class SecretKey : BaseEntity<Guid>
     public required string Algorithm { get; set; }
     public required string HashAlgorithm { get; set; }
     public required string DerivationAlgorithm { get; set; }
-    public required Guid UserId { get; set; } // Required
-    public User? User { get; set; } // Optional
+    public required Guid UserId { get; set; }
+    public User? User { get; set; }
 }

@@ -14,7 +14,7 @@ public class AESHelper
 
         using var encryptor = aes.CreateEncryptor();
         using var memoryStream = new MemoryStream();
-        memoryStream.Write(iv, 0, iv.Length); // Append the IV at the beginning
+        memoryStream.Write(iv, 0, iv.Length);
 
         using var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
         cryptoStream.Write(encryptedContent, 0, encryptedContent.Length);

@@ -19,7 +19,7 @@ public class AuditInterceptor(UserContext userContext) : SaveChangesInterceptor
         if (context == null) return base.SavingChangesAsync(dbContextEventData, result, cancellation);
 
         var entries = context.ChangeTracker
-            .Entries<BaseAuditEntity>() //! Only returns Entities that inherit from BaseAuditEntity
+            .Entries<BaseAuditEntity>()
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
         foreach (var entry in entries)

@@ -21,5 +21,5 @@ public class User : BaseEntity<Guid>
 
     public ICollection<Secret>? Secrets { get; set; }
 
-    public SecretKey? SecretKey { get; set; } //Opcional para 1:1 
+    public SecretKey? SecretKey { get; set; }
 }

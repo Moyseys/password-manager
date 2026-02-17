@@ -11,6 +11,8 @@ using Account.Features.Users.Services;
 using Account.Setting;
 using Scalar.AspNetCore;
 using Auth.Extension;
+using DAL.Interceptors;
+using Core.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,10 +34,21 @@ var cookieSettings = builder.Configuration.GetSection(nameof(CookiesSettings)).G
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(cookieSettings);
 
+//HttpContext
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<UserContext>();
+
+//Interceptors
+builder.Services.AddScoped<AuditInterceptor>();
+
+
 //Db Context
-builder.Services.AddDbContext<PasswordManagerDbContext>(options =>
+builder.Services.AddDbContext<PasswordManagerDbContext>((serviceProvider, options) =>
+{
+    var auditInterceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+           .AddInterceptors(auditInterceptor);
+});
 
 //DI
 builder.Services.AddScoped<PasswordHasher<User>>();
@@ -50,9 +63,6 @@ builder.Services.AddScoped<UserResitory>();
 //Exeption
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
-//HttpContext
-builder.Services.AddHttpContextAccessor();
 
 //Auth
 builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie);
