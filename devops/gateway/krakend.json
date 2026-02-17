@@ -90,6 +90,20 @@
       "output_encoding": "no-op"
     },
     {
+      "endpoint": "/vaultify/v1/dashboard",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/dashboard",
+          "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
       "endpoint": "/vaultify/v1/secrets",
       "method": "GET",
       "input_headers": ["*"],
