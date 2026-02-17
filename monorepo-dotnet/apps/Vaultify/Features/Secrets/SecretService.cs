@@ -1,28 +1,21 @@
 using Core.Contexts;
-using DAL;
 using DAL.Dtos;
 using DAL.Entities;
-using DAL.Extensions;
 using DAL.Repositories;
-using Microsoft.EntityFrameworkCore;
 using SharedDto.Dtos;
 using SharedDto.Mappers;
 using Vaultify.Core.Mappers;
 using Vaultify.Features.Secrets.Dtos.Requests;
-using Vaultify.Features.Secrets.Dtos.Response;
-
 
 namespace Vaultify.Features.Secrets;
 
 public class SecretService(
     SecretRepository secretRepository,
-    PasswordManagerDbContext context,
     UserContext userContext,
     ILogger<SecretService> logger
     )
 {
     private readonly SecretRepository _secretRepository = secretRepository;
-    private readonly PasswordManagerDbContext _context = context;
     private readonly UserContext _userContext = userContext;
     private readonly ILogger<SecretService> _logger = logger;
 
@@ -37,15 +30,12 @@ public class SecretService(
         var userId = _userContext.GetUserIdOrThrow();
         _logger.LogInformation("[ListSecrets] UserId: {UserId}", userId);
 
-        IQueryable<Secret> query = _context.Secret
-            .AsNoTracking()
-            .Where((s) => s.UserId == userId && s.Active)
-            .OrderByDescending(s => s.CreatedAt);
-
-        if (!string.IsNullOrEmpty(search))
-            query = query.Where(s => s.Title.ToLower().Contains(search.ToLower()));
-
-        return await query.WithPagination(s => s.ToSecretReponseListDto(), pagination);
+        return await _secretRepository.GetSecretsPagedByUserId(
+            userId,
+            s => s.ToSecretReponseListDto(),
+            pagination,
+            search
+        );
     }
 
     public async Task<SecretResponseDto> GetSecret(Guid secretId)
@@ -63,7 +53,7 @@ public class SecretService(
         _logger.LogInformation("[UpdateSecret] Updating secret {SecretId} for user {UserId}", secretId, _userContext.UserId);
 
         secret.ToSecretRequestUpdateDto(payload);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _secretRepository.UpdateSecretAsync(secret);
 
         return payload;
     }

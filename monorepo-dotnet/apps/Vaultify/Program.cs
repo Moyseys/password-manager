@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Vaultify.Features.SecretKeyF;
 using Vaultify.Features.Secrets;
 using Scalar.AspNetCore;
+using Vaultify.Features.Dashboard;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,10 +52,12 @@ builder.Services.AddScoped<UserContext>();
 builder.Services.AddScoped<SecretRepository>();
 builder.Services.AddScoped<SecretKeyRepository>();
 builder.Services.AddScoped<UserResitory>();
+builder.Services.AddScoped<DashboardRepository>();
 
 //Services
 builder.Services.AddScoped<SecretService>();
 builder.Services.AddScoped<SecretKeyService>();
+builder.Services.AddScoped<DashboardService>();
 
 //Exception
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
