@@ -17,6 +17,7 @@ namespace DAL.Migrations
                     COUNT(s.id) as ""total_secrets""
                 FROM ""secret"" s
                 LEFT JOIN ""user"" u ON u.""id"" = s.""user_id""
+                WHERE s.""active"" = true
                 GROUP BY u.""id"";
             ");
         }
