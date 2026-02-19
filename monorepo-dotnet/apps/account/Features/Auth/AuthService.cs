@@ -7,6 +7,7 @@ using Auth.Services;
 using Auth.Dtos;
 using Auth.Setting;
 using Account.Setting;
+using Core.Contexts;
 
 namespace Account.Features.Auth;
 
@@ -15,6 +16,7 @@ public class AuthService(
     PasswordHasher<User> passwordHasher,
     JwtSettings jwtSettings,
     IHttpContextAccessor httpContextAccessor,
+    UserContext userContext,
     CookiesSettings cookiesSettings)
 {
     private readonly PasswordHasher<User> passwordHasher = passwordHasher;
@@ -22,6 +24,7 @@ public class AuthService(
     private readonly JwtSettings jwtSettings = jwtSettings;
     private readonly HttpContext httpContext = httpContextAccessor.HttpContext
         ?? throw new ArgumentNullException(nameof(httpContextAccessor), "HttpContext is null.");
+    private readonly UserContext userContext = userContext;
     private readonly CookiesSettings cookiesSettings = cookiesSettings;
 
     public async Task<LoginResponseDto> Token(LoginRequestDto payload)
@@ -39,6 +42,15 @@ public class AuthService(
         {
             Name = user.Name,
             Email = user.Email,
+        };
+    }
+
+    public CheckResponseDto Check()
+    {
+        return new CheckResponseDto
+        {
+            Name = userContext.Name,
+            Email = userContext.Email
         };
     }
 

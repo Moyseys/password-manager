@@ -5,7 +5,7 @@ namespace Core.Contexts;
 
 public class UserContext(IHttpContextAccessor httpAcessor)
 {
-    private readonly IHttpContextAccessor _httpAcessor = httpAcessor;    
+    private readonly IHttpContextAccessor _httpAcessor = httpAcessor;
 
     public Guid? UserId
     {
@@ -21,4 +21,8 @@ public class UserContext(IHttpContextAccessor httpAcessor)
         var userIdClaim = _httpAcessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return Guid.TryParse(userIdClaim, out var userId) ? userId : throw new UnauthorizedAccessException("User is not found");
     }
+
+    public string? Name => _httpAcessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
+
+    public string? Email => _httpAcessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value;
 }

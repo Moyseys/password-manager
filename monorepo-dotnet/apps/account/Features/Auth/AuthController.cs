@@ -23,9 +23,9 @@ public class AuthController(AuthService authController, CookiesSettings cookiesS
     }
 
     [HttpGet("check")]
-    public ActionResult Check()
+    public ActionResult<CheckResponseDto> Check()
     {
-        return Ok();
+        return Ok(_authService.Check());
     }
 
     [HttpPost("logout")]
