@@ -5,13 +5,15 @@ using DAL.Entities;
 using Core.Exceptions;
 using SharedDto.Dtos;
 using SharedDto.Mappers;
+using Core.Contexts;
 
 namespace Account.Features.Users.Services;
 
-public class UserService(UserResitory userResitory, PasswordHasher<User> passwordHasher)
+public class UserService(UserResitory userResitory, PasswordHasher<User> passwordHasher, UserContext userContext)
 {
     private readonly UserResitory userResitory = userResitory;
     private readonly PasswordHasher<User> passwordHasher = passwordHasher;
+    private readonly UserContext userContext = userContext;
 
     public async Task CreateUser(CreateUserDto payload)
     {
@@ -36,5 +38,11 @@ public class UserService(UserResitory userResitory, PasswordHasher<User> passwor
 
         Validator.TryValidateObject(user, validationContext, result, validateAllProperties: true);
         return result;
+    }
+
+    public async Task DeleteUser()
+    {
+        await userResitory.DeleteUserByIdAsync(this.userContext.GetUserIdOrThrow());
+        return;
     }
 }

@@ -33,4 +33,14 @@ public class UserResitory
         await context.User.AddAsync(user);
         await context.SaveChangesAsync();
     }
+
+    public async Task DeleteUserByIdAsync(Guid id)
+    {
+        var user = await context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
+        if (user != null)
+        {
+            context.User.Remove(user);
+            await context.SaveChangesAsync();
+        }
+    }
 }

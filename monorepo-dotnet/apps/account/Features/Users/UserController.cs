@@ -19,4 +19,11 @@ public class UserController(UserService userService) : ControllerBase
         await this.userService.CreateUser(body);
         return NoContent();
     }
+
+    [HttpDelete()]
+    public async Task<IActionResult> Delete()
+    {
+        await this.userService.DeleteUser();
+        return NoContent();
+    }
 }
