@@ -27,12 +27,24 @@ services:
       timeout: 10s
       retries: 3
 
+  rabbitmq:
+    container_name: pass-rabbitmq
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    networks:
+      - pass-network
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+
   account:
     container_name: pass-account
     image: localhost:${REGISTRY_PORT}/account:latest
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     restart: unless-stopped
     networks:
       - pass-network
@@ -94,5 +106,5 @@ volumes:
 
 networks:
   pass-network:
-    external: true
-    name: pass-network
+    # external: true
+    # name: pass-network

@@ -4,7 +4,10 @@
     "*": true,
     "plaintext": false,
     "markdown": true,
-    "scminput": false
+    "scminput": false,
+    "typescript": true,
+    "csharp": true,
+    "html": true
   },
   "github.copilot.advanced": {
     "debug.overrideChatEngine": "",
