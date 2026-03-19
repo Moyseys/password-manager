@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Notification.Config;
+using SimpleMq.Config;
 using SimpleMq.Extensions;
 
 var builder = Host.CreateApplicationBuilder(args);
