@@ -1,35 +1,4 @@
 services:
-  db:
-    container_name: pass-db
-    image: postgres:15-alpine
-    restart: unless-stopped
-    networks:
-      - pass-network
-    ports:
-      - "${DB_PORT}:5432"
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    mem_limit: 64m
-    memswap_limit: 96m
-    cpus: 0.30
-    deploy:
-      resources:
-        limits:
-          memory: 64M
-          cpus: "0.30"
-        reservations:
-          memory: 32M
-          cpus: "0.15"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   rabbitmq:
     container_name: pass-rabbitmq
     image: rabbitmq:3-management-alpine
@@ -39,10 +8,8 @@ services:
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-    volumes:
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-    mem_limit: 96m
-    memswap_limit: 144m
+    mem_limit: 128m
+    memswap_limit: 192m
     cpus: 0.25
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
@@ -53,18 +20,16 @@ services:
     deploy:
       resources:
         limits:
-          memory: 96M
+          memory: 128M
           cpus: "0.25"
         reservations:
-          memory: 48M
+          memory: 64M
           cpus: "0.10"
 
   account:
     container_name: pass-account
     image: localhost:${REGISTRY_PORT}/account:latest
     depends_on:
-      db:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -85,24 +50,22 @@ services:
       - MessageBrokerConnectionOptions__UserName=${RABBITMQ_USER}
       - MessageBrokerConnectionOptions__Password=${RABBITMQ_PASSWORD}
       - MessageBrokerConnectionOptions__AutomaticRecoveryEnabled=${RABBITMQ_AUTOMATIC_RECOVERY_ENABLED}
-    mem_limit: 64m
-    memswap_limit: 96m
+    mem_limit: 128m
+    memswap_limit: 192m
     cpus: 0.30
     deploy:
       resources:
         limits:
-          memory: 64M
+          memory: 128M
           cpus: "0.30"
         reservations:
-          memory: 32M
+          memory: 64M
           cpus: "0.15"
 
   vaultify:
     container_name: pass-vaultify
     image: localhost:${REGISTRY_PORT}/vaultify:latest
     depends_on:
-      db:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -113,16 +76,16 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=${CONNECTIONSTRING_POSTGRES}
       - JwtSettings__SecretKey=${JWT_SECRET}
-    mem_limit: 64m
-    memswap_limit: 96m
+    mem_limit: 128m
+    memswap_limit: 192m
     cpus: 0.30
     deploy:
       resources:
         limits:
-          memory: 64M
+          memory: 128M
           cpus: "0.30"
         reservations:
-          memory: 32M
+          memory: 64M
           cpus: "0.15"
   notification:
     container_name: pass-notification
@@ -141,16 +104,16 @@ services:
       - MessageBrokerConnectionOptions__UserName=${RABBITMQ_USER}
       - MessageBrokerConnectionOptions__Password=${RABBITMQ_PASSWORD}
       - MessageBrokerConnectionOptions__AutomaticRecoveryEnabled=${RABBITMQ_AUTOMATIC_RECOVERY_ENABLED}
-    mem_limit: 40m
-    memswap_limit: 60m
+    mem_limit: 64m
+    memswap_limit: 96m
     cpus: 0.15
     deploy:
       resources:
         limits:
-          memory: 40M
+          memory: 64M
           cpus: "0.15"
         reservations:
-          memory: 20M
+          memory: 32M
           cpus: "0.08"
   gw:
     container_name: pass-gw
@@ -160,20 +123,17 @@ services:
     restart: unless-stopped
     networks:
       - pass-network
-    mem_limit: 24m
-    memswap_limit: 36m
+    mem_limit: 48m
+    memswap_limit: 72m
     cpus: 0.10
     deploy:
       resources:
         limits:
-          memory: 24M
+          memory: 48M
           cpus: "0.10"
         reservations:
-          memory: 12M
+          memory: 24M
           cpus: "0.05"
-
-volumes:
-  db-data:
 
 networks:
   pass-network:
