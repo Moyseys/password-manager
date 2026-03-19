@@ -11,6 +11,8 @@ services:
     mem_limit: 128m
     memswap_limit: 192m
     cpus: 0.25
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 30s
