@@ -8,6 +8,8 @@ namespace DAL;
 public class PasswordManagerDbContext : DbContext
 {
     public DbSet<User> User { get; set; }
+    public DbSet<MFASettings> MFASettings { get; set; }
+    public DbSet<MFAToken> MFATokens { get; set; }
     public DbSet<Secret> Secret { get; set; }
     public DbSet<SecretKey> SecretKey { get; set; }
     public DbSet<DashboardVaultify> DashboardVaultify { get; set; }
@@ -26,6 +28,15 @@ public class PasswordManagerDbContext : DbContext
             }
         }
 
+        //MFA Settings
+        modelBuilder.Entity<MFASettings>()
+            .Property(e => e.Type)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<MFASettings>()
+            .Property(e => e.State)
+            .HasConversion<string>();
+        //Dashboard View    
         modelBuilder.Entity<DashboardVaultify>(entity =>
         {
             entity.HasNoKey();

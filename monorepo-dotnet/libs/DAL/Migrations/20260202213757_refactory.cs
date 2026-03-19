@@ -10,31 +10,31 @@ namespace DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "master_password_salt",
-                table: "user");
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "user" DROP COLUMN IF EXISTS master_password_salt;
+                """);
 
-            migrationBuilder.AddColumn<byte[]>(
-                name: "key_salt",
-                table: "secret_key",
-                type: "bytea",
-                nullable: false,
-                defaultValue: new byte[0]);
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret_key"
+                ADD COLUMN IF NOT EXISTS key_salt bytea NOT NULL DEFAULT '\\x'::bytea;
+                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "key_salt",
-                table: "secret_key");
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret_key" DROP COLUMN IF EXISTS key_salt;
+                """);
 
-            migrationBuilder.AddColumn<byte[]>(
-                name: "master_password_salt",
-                table: "user",
-                type: "bytea",
-                nullable: false,
-                defaultValue: new byte[0]);
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "user"
+                ADD COLUMN IF NOT EXISTS master_password_salt bytea NOT NULL DEFAULT '\\x'::bytea;
+                """);
         }
     }
 }

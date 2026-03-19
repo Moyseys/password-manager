@@ -25,4 +25,8 @@ public class UserContext(IHttpContextAccessor httpAcessor)
     public string? Name => _httpAcessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
 
     public string? Email => _httpAcessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value;
+
+    public bool IsMFAEnabled => _httpAcessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == "IsMFAEnabled")?.Value == "True";
+
+    public bool IsMFAPending => _httpAcessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == "IsMFAPending")?.Value == "True";
 }

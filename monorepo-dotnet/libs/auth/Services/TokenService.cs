@@ -10,9 +10,9 @@ namespace Auth.Services;
 public static class TokenService
 {
 
-    public static string GenerateTokenJwt(JwtSettings jwtSettings, TokenPayloadDto payload)
+    public static string GenerateAccessToken(JwtSettings jwtSettings, TokenPayloadDto payload, int expirationInSeconds = 3600)
     {
-        DateTime Expiration = DateTime.UtcNow.AddHours(1);
+        DateTime Expiration = DateTime.UtcNow.AddSeconds(expirationInSeconds);
 
         var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
         var Credential = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
@@ -21,7 +21,9 @@ public static class TokenService
         {
             new Claim(ClaimTypes.NameIdentifier, payload.Id.ToString()),
             new Claim(ClaimTypes.Name, payload.Name),
-            new Claim(ClaimTypes.Email, payload.Email)
+            new Claim(ClaimTypes.Email, payload.Email),
+            new Claim("IsMFAEnabled", payload.IsMFAEnabled.ToString()),
+            new Claim("IsMFAPending", payload.IsMFAPending.ToString())
         };
 
         var token = new JwtSecurityToken(

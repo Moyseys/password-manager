@@ -43,6 +43,11 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     .SetDetail(exception.Message)
                     .SetTitle("Conflict")
                     .Build(),
+            MFAVerificationException mfaEx => new ExceptionDetailBuilder()
+                    .SetStatus(mfaEx.StatusCode ?? StatusCodes.Status400BadRequest)
+                    .SetDetail(exception.Message)
+                    .SetTitle("MFA Verification Failed")
+                    .Build(),
             FormatException => new ExceptionDetailBuilder()
                     .SetStatus(StatusCodes.Status400BadRequest)
                     .SetDetail("The provided data format is invalid. Please verify your input and try again.")

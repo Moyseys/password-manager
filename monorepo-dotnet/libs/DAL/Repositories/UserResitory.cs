@@ -14,7 +14,15 @@ public class UserResitory
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return await context.User.FirstOrDefaultAsync(u => u.Email.Equals(email));
+        return await context.User
+            .FirstOrDefaultAsync(u => u.Email.Equals(email));
+    }
+
+    public async Task<User?> GetUserByEmailWithMFAAsync(string email)
+    {
+        return await context.User
+            .Include(u => u.MFASettings)
+            .FirstOrDefaultAsync(u => u.Email.Equals(email));
     }
 
     public async Task<User?> GetUserById(Guid id)

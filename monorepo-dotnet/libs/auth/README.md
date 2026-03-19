@@ -54,7 +54,7 @@ Middleware que protege rotas validando o token JWT presente no header `Authoriza
 ### 2. Configurar User Secrets (Desenvolvimento)
 
 ```bash
-cd apps/account
+cd apps/Account
 dotnet user-secrets init
 dotnet user-secrets set "JwtSettings:SecretKey" "sua-chave-super-secreta-aqui"
 ```

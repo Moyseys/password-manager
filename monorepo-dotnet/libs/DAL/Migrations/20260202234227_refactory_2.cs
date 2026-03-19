@@ -10,41 +10,69 @@ namespace DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "password",
-                table: "secret",
-                newName: "iv");
+            migrationBuilder.Sql(
+                """
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1
+                        FROM information_schema.columns
+                        WHERE table_schema = 'public' AND table_name = 'secret' AND column_name = 'password'
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM information_schema.columns
+                        WHERE table_schema = 'public' AND table_name = 'secret' AND column_name = 'iv'
+                    ) THEN
+                        ALTER TABLE "secret" RENAME COLUMN password TO iv;
+                    END IF;
+                END $$;
+                """);
 
-            migrationBuilder.AddColumn<byte[]>(
-                name: "cipher_password",
-                table: "secret",
-                type: "bytea",
-                nullable: false,
-                defaultValue: new byte[0]);
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret"
+                ADD COLUMN IF NOT EXISTS cipher_password bytea NOT NULL DEFAULT '\\x'::bytea;
+                """);
 
-            migrationBuilder.AddColumn<string>(
-                name: "website",
-                table: "secret",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret"
+                ADD COLUMN IF NOT EXISTS website text NOT NULL DEFAULT '';
+                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "cipher_password",
-                table: "secret");
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret" DROP COLUMN IF EXISTS cipher_password;
+                """);
 
-            migrationBuilder.DropColumn(
-                name: "website",
-                table: "secret");
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "secret" DROP COLUMN IF EXISTS website;
+                """);
 
-            migrationBuilder.RenameColumn(
-                name: "iv",
-                table: "secret",
-                newName: "password");
+            migrationBuilder.Sql(
+                """
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1
+                        FROM information_schema.columns
+                        WHERE table_schema = 'public' AND table_name = 'secret' AND column_name = 'iv'
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM information_schema.columns
+                        WHERE table_schema = 'public' AND table_name = 'secret' AND column_name = 'password'
+                    ) THEN
+                        ALTER TABLE "secret" RENAME COLUMN iv TO password;
+                    END IF;
+                END $$;
+                """);
         }
     }
 }
