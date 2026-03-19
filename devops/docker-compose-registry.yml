@@ -13,14 +13,17 @@ services:
       - "${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
     volumes:
       - ./registry/registry/data:/var/lib/registry
+    mem_limit: 24m
+    memswap_limit: 36m
+    cpus: 0.10
     deploy:
       resources:
         limits:
-          memory: 64M
-          cpus: "0.25"
+          memory: 24M
+          cpus: "0.10"
         reservations:
-          memory: 32M
-          cpus: "0.1"
+          memory: 12M
+          cpus: "0.05"
     healthcheck:
       test:
         [
@@ -55,14 +58,17 @@ services:
       - CERT_PATH_HOST=${CERT_PATH_HOST}
     volumes:
       - ${CERT_BASE}:${CERT_BASE}:ro
+    mem_limit: 24m
+    memswap_limit: 36m
+    cpus: 0.10
     deploy:
       resources:
         limits:
-          memory: 64M
-          cpus: "0.25"
+          memory: 24M
+          cpus: "0.10"
         reservations:
-          memory: 32M
-          cpus: "0.1"
+          memory: 12M
+          cpus: "0.05"
 
 networks:
   pass-network:

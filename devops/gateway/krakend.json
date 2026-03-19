@@ -90,6 +90,62 @@
       "output_encoding": "no-op"
     },
     {
+      "endpoint": "/account/v1/auth/mfa/configure",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://account:8080"],
+          "url_pattern": "/api/v1/auth/mfa/configure",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/account/v1/auth/mfa",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://account:8080"],
+          "url_pattern": "/api/v1/auth/mfa",
+          "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/account/v1/auth/mfa/verify",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://account:8080"],
+          "url_pattern": "/api/v1/auth/mfa/verify",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/account/v1/auth/mfa/token",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://account:8080"],
+          "url_pattern": "/api/v1/auth/mfa/token",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
       "endpoint": "/vaultify/v1/dashboard",
       "method": "GET",
       "input_headers": ["*"],
