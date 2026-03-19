@@ -49,7 +49,18 @@ builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddDbContext<PasswordManagerDbContext>((ServiceProvider, options) =>
 {
     var auditInterceptor = ServiceProvider.GetRequiredService<AuditInterceptor>();
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).AddInterceptors(auditInterceptor);
+    options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorCodesToAdd: null
+                );
+                npgsqlOptions.CommandTimeout(30);
+            })
+        .AddInterceptors(auditInterceptor);
 });
 
 //Repositories
@@ -73,9 +84,10 @@ builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie)
 //OpenApi
 builder.Services.AddOpenApi();
 
+
 var app = builder.Build();
 
-//Middleware
+//Middlewares
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();

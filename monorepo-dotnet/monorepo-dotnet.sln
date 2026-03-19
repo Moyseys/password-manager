@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{1787FE1D-075E-9E68-7218-25F1BD1BBEAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "account", "apps\account\account.csproj", "{31EDDF73-3113-4B70-9199-15BBF26D5810}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Account", "apps\Account\Account.csproj", "{31EDDF73-3113-4B70-9199-15BBF26D5810}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{6C4D298B-81FB-2B6B-5AB6-46205EDDC72C}"
 EndProject

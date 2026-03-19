@@ -17,7 +17,6 @@
     <ProjectReference Include="..\..\libs\auth\auth.csproj" />
     <ProjectReference Include="..\..\libs\DAL\DAL.csproj" />
     <ProjectReference Include="..\..\libs\SharedDto\SharedDto.csproj" />
-    <ProjectReference Include="..\..\libs\SimpleMQ\SimpleMQ.csproj" />
   </ItemGroup>
 
 </Project>
