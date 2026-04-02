@@ -1,6 +1,7 @@
 {
   "$schema": "https://www.krakend.io/schema/v3.json",
   "version": 3,
+  "timeout": "5s",
   "name": "krakend",
   "extra_config": {
     "security/cors": {
