@@ -115,6 +115,12 @@ services:
       - MessageBrokerConnectionOptions__UserName=${RABBITMQ_USER}
       - MessageBrokerConnectionOptions__Password=${RABBITMQ_PASSWORD}
       - MessageBrokerConnectionOptions__AutomaticRecoveryEnabled=${RABBITMQ_AUTOMATIC_RECOVERY_ENABLED}
+      - EmailSettingsOptions__Host=${EMAIL_HOST}
+      - EmailSettingsOptions__Port=${EMAIL_PORT}
+      - EmailSettingsOptions__FromEmail=${EMAIL_FROM}
+      - EmailSettingsOptions__FromName=${EMAIL_FROM_NAME}
+      - EmailSettingsOptions__Username=${EMAIL_USERNAME}
+      - EmailSettingsOptions__Password=${EMAIL_PASSWORD}
     logging: *default-logging
     mem_limit: 64m
     memswap_limit: 96m
