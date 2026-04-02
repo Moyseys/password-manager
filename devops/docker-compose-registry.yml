@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   registry:
     container_name: pass-registry
@@ -13,6 +19,7 @@ services:
       - "${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
     volumes:
       - ./registry/registry/data:/var/lib/registry
+    logging: *default-logging
     mem_limit: 24m
     memswap_limit: 36m
     cpus: 0.10
@@ -58,6 +65,7 @@ services:
       - CERT_PATH_HOST=${CERT_PATH_HOST}
     volumes:
       - ${CERT_BASE}:${CERT_BASE}:ro
+    logging: *default-logging
     mem_limit: 24m
     memswap_limit: 36m
     cpus: 0.10
