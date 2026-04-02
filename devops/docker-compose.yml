@@ -37,7 +37,7 @@ services:
 
   account:
     container_name: pass-account
-    image: localhost:${REGISTRY_PORT}/account:latest
+    image: pass-network:${REGISTRY_PORT}/account:latest
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -74,7 +74,7 @@ services:
 
   vaultify:
     container_name: pass-vaultify
-    image: localhost:${REGISTRY_PORT}/vaultify:latest
+    image: pass-network:${REGISTRY_PORT}/vaultify:latest
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -100,7 +100,7 @@ services:
           cpus: "0.15"
   notification:
     container_name: pass-notification
-    image: localhost:${REGISTRY_PORT}/notification:latest
+    image: pass-network:${REGISTRY_PORT}/notification:latest
     depends_on:
       rabbitmq:
         condition: service_started
@@ -135,7 +135,7 @@ services:
           cpus: "0.08"
   gw:
     container_name: pass-gw
-    image: localhost:${REGISTRY_PORT}/gw:latest
+    image: pass-network:${REGISTRY_PORT}/gw:latest
     ports:
       - "${GW_PORT}:${GW_INTERNAL_PORT}"
     restart: unless-stopped
