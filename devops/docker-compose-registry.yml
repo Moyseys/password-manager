@@ -16,7 +16,9 @@ services:
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
       OTEL_TRACES_EXPORTER: none
+      OTEL_SDK_DISABLED: "true"
       OTEL_METRICS_EXPORTER: none
+      REGISTRY_HTTP_SECRET: ${REGISTRY_HTTP_SECRET}
     ports:
       - "${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
     volumes:
