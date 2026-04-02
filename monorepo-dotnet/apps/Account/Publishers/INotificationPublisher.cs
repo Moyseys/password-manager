@@ -1,4 +1,4 @@
-using Account.Messages;
+using SharedDto.Messages;
 
 namespace Account.Publishers;
 

@@ -1,4 +1,4 @@
-using Account.Messages;
+using SharedDto.Messages;
 using SimpleMq.Enums;
 using SimpleMq.Interfaces;
 using SimpleMq.Services;

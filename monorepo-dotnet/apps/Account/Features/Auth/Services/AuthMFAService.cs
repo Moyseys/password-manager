@@ -1,11 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 using Account.Features.Auth.Interfaces;
-using Account.Features.Auth.Services;
 using Account.Features.Auth.Dtos.Requests;
 using Account.Features.Auth.Dtos.Responses;
 using Account.Mappers;
-using Account.Messages;
 using Account.Publishers;
 using Account.Setting;
 using Core.Contexts;
@@ -15,6 +13,8 @@ using DAL.Enums;
 using DAL.Extensions;
 using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using SharedDto.Messages;
+using SharedDto.Enums;
 
 namespace Account.Features.Auth.Services;
 
@@ -82,7 +82,13 @@ public class AuthMFAService(
         var email = new EmailMessage(
             _userContext.Email ?? throw new InvalidOperationException("User email not found in context"),
             emailSubject,
-            $"Your MFA code is: {token}. It expires in {_mfaEmailSettings.TokenExpiresInSeconds} seconds."
+            TemplateEnum.MFAEmail,
+            new Dictionary<string, string>
+            {
+                ["UserName"] = mfaSettings.User?.Name ?? throw new InvalidOperationException("User name not found."),
+                ["Code"] = token,
+                ["ExpirationMinutes"] = (_mfaEmailSettings.TokenExpiresInSeconds / 60).ToString()
+            }
         );
         await _notificationPublisher.PublishEmailAsync(email);
     }
