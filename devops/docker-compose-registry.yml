@@ -15,6 +15,8 @@ services:
       - pass-network
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
+      OTEL_TRACES_EXPORTER: none
+      OTEL_METRICS_EXPORTER: none
     ports:
       - "${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
     volumes:
