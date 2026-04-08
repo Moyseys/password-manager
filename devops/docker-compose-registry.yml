@@ -24,17 +24,17 @@ services:
     volumes:
       - ./registry/registry/data:/var/lib/registry
     logging: *default-logging
-    mem_limit: 24m
-    memswap_limit: 36m
-    cpus: 0.10
+    mem_limit: 256m
+    memswap_limit: 384m
+    cpus: 0.25
     deploy:
       resources:
         limits:
-          memory: 24M
-          cpus: "0.10"
+          memory: 256M
+          cpus: "0.25"
         reservations:
-          memory: 12M
-          cpus: "0.05"
+          memory: 128M
+          cpus: "0.10"
     healthcheck:
       test:
         [
@@ -70,17 +70,17 @@ services:
     volumes:
       - ${CERT_BASE}:${CERT_BASE}:ro
     logging: *default-logging
-    mem_limit: 24m
-    memswap_limit: 36m
-    cpus: 0.10
+    mem_limit: 128m
+    memswap_limit: 192m
+    cpus: 0.15
     deploy:
       resources:
         limits:
-          memory: 24M
-          cpus: "0.10"
+          memory: 128M
+          cpus: "0.15"
         reservations:
-          memory: 12M
-          cpus: "0.05"
+          memory: 64M
+          cpus: "0.08"
 
 networks:
   pass-network:

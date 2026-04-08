@@ -14,9 +14,9 @@ services:
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-    mem_limit: 128m
-    memswap_limit: 192m
-    cpus: 0.25
+    mem_limit: 256m
+    memswap_limit: 384m
+    cpus: 0.50
     volumes:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
@@ -29,11 +29,11 @@ services:
     deploy:
       resources:
         limits:
+          memory: 256M
+          cpus: "0.50"
+        reservations:
           memory: 128M
           cpus: "0.25"
-        reservations:
-          memory: 64M
-          cpus: "0.10"
 
   account:
     container_name: pass-account
@@ -60,17 +60,17 @@ services:
       - MessageBrokerConnectionOptions__Password=${RABBITMQ_PASSWORD}
       - MessageBrokerConnectionOptions__AutomaticRecoveryEnabled=${RABBITMQ_AUTOMATIC_RECOVERY_ENABLED}
     logging: *default-logging
-    mem_limit: 128m
-    memswap_limit: 192m
-    cpus: 0.30
+    mem_limit: 512m
+    memswap_limit: 768m
+    cpus: 0.75
     deploy:
       resources:
         limits:
-          memory: 128M
-          cpus: "0.30"
+          memory: 512M
+          cpus: "0.75"
         reservations:
-          memory: 64M
-          cpus: "0.15"
+          memory: 256M
+          cpus: "0.35"
 
   vaultify:
     container_name: pass-vaultify
@@ -87,17 +87,17 @@ services:
       - ConnectionStrings__DefaultConnection=${CONNECTIONSTRING_POSTGRES}
       - JwtSettings__SecretKey=${JWT_SECRET}
     logging: *default-logging
-    mem_limit: 128m
-    memswap_limit: 192m
-    cpus: 0.30
+    mem_limit: 512m
+    memswap_limit: 768m
+    cpus: 0.75
     deploy:
       resources:
         limits:
-          memory: 128M
-          cpus: "0.30"
+          memory: 512M
+          cpus: "0.75"
         reservations:
-          memory: 64M
-          cpus: "0.15"
+          memory: 256M
+          cpus: "0.35"
   notification:
     container_name: pass-notification
     image: ${REGISTRY_HOST}/notification:latest
@@ -122,17 +122,17 @@ services:
       - EmailSettingsOptions__Username=${EMAIL_USERNAME}
       - EmailSettingsOptions__Password=${EMAIL_PASSWORD}
     logging: *default-logging
-    mem_limit: 64m
-    memswap_limit: 96m
-    cpus: 0.15
+    mem_limit: 256m
+    memswap_limit: 384m
+    cpus: 0.25
     deploy:
       resources:
         limits:
-          memory: 64M
-          cpus: "0.15"
+          memory: 256M
+          cpus: "0.25"
         reservations:
-          memory: 32M
-          cpus: "0.08"
+          memory: 128M
+          cpus: "0.10"
   gw:
     container_name: pass-gw
     image: ${REGISTRY_HOST}/gw:latest
@@ -142,17 +142,17 @@ services:
     networks:
       - pass-network
     logging: *default-logging
-    mem_limit: 48m
-    memswap_limit: 72m
-    cpus: 0.10
+    mem_limit: 128m
+    memswap_limit: 192m
+    cpus: 0.25
     deploy:
       resources:
         limits:
-          memory: 48M
-          cpus: "0.10"
+          memory: 128M
+          cpus: "0.25"
         reservations:
-          memory: 24M
-          cpus: "0.05"
+          memory: 64M
+          cpus: "0.10"
 
 networks:
   pass-network:

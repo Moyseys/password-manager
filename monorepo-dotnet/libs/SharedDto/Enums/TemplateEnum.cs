@@ -4,6 +4,6 @@ namespace SharedDto.Enums;
 
 public enum TemplateEnum
 {
-    [EnumMember(Value = "MFAEmail")]
-    MFAEmail
+    [EnumMember(Value = "MfaCode")]
+    MFACode
 }

@@ -58,10 +58,10 @@ public class AuthMFAService(
         var mfaSettingsId = request.ToMFASettingsId();
 
         var mfaSettings = await _mfaSettingsRepo.GetByIdAndUserIdAsync(mfaSettingsId, userId)
-            ?? throw new MFAVerificationException("MFA settings not found for user.");
+            ?? throw new MFAVerificationException("MFA settings not found for user.", MFAErrorCode.SettingsNotFound);
 
         var existTokenValid = await _mfaTokenRepo.ExistsValidTokenAsync(mfaSettings.Id);
-        if (existTokenValid) throw new MFAVerificationException("A valid MFA token already exists. Please check your email.");
+        if (existTokenValid) throw new MFAVerificationException("A valid MFA token already exists. Please check your email.", MFAErrorCode.ActiveTokenAlreadyExists);
 
         if (mfaSettings.Type != MFAType.Email)
             throw new InvalidOperationException("Token generation is only supported for email MFA.");
@@ -78,17 +78,17 @@ public class AuthMFAService(
         var tokenHash = HashToken(token);
 
         await _mfaTokenRepo.AddAsync(mfaSettings.ToMFAToken(tokenHash, _mfaEmailSettings.TokenExpiresInSeconds));
-        Console.WriteLine($"Generated MFA token for user {mfaSettings.UserId}: {token} (hash: {tokenHash})");
         var email = new EmailMessage(
             _userContext.Email ?? throw new InvalidOperationException("User email not found in context"),
             emailSubject,
-            TemplateEnum.MFAEmail,
+            TemplateEnum.MFACode,
             new Dictionary<string, string>
             {
-                ["UserName"] = mfaSettings.User?.Name ?? throw new InvalidOperationException("User name not found."),
+                ["UserName"] = _userContext.Name ?? "User",
                 ["Code"] = token,
                 ["ExpirationMinutes"] = (_mfaEmailSettings.TokenExpiresInSeconds / 60).ToString()
-            }
+            },
+            IsHtml: true
         );
         await _notificationPublisher.PublishEmailAsync(email);
     }
@@ -118,17 +118,17 @@ public class AuthMFAService(
             ?? throw new UnauthorizedAccessException("UserId not found in context.");
 
         var mfaSettings = await _mfaSettingsRepo.GetByIdAndUserIdAsync(verification.MFASettingsId, userId)
-            ?? throw new MFAVerificationException("MFA settings not found for user.");
+            ?? throw new MFAVerificationException("MFA settings not found for user.", MFAErrorCode.SettingsNotFound);
 
         var user = mfaSettings.User ?? throw new InvalidOperationException("User not found for MFA settings.");
 
         var mfaToken = await _mfaTokenRepo.GetLatestUnusedTokenAsync(verification.MFASettingsId)
-            ?? throw new MFAVerificationException("Token not found or already used.");
+            ?? throw new MFAVerificationException("Token not found or already used.", MFAErrorCode.TokenNotFoundOrUsed);
 
         if (mfaToken.ExpiresAt < DateTime.UtcNow)
         {
             await _mfaTokenRepo.MarkTokenAsUsedAsync(mfaToken);
-            throw new MFAVerificationException("Token has expired.");
+            throw new MFAVerificationException("Token has expired.", MFAErrorCode.TokenExpired);
         }
 
         var tokenHash = HashToken(verification.Token.Trim());
@@ -140,11 +140,11 @@ public class AuthMFAService(
             {
                 mfaToken.IsUsed = true;
                 await _mfaTokenRepo.UpdateAsync(mfaToken);
-                throw new MFAVerificationException("Too many failed attempts. Token blocked.", StatusCodes.Status429TooManyRequests);
+                throw new MFAVerificationException("Too many failed attempts. Token blocked.", MFAErrorCode.TokenBlocked, StatusCodes.Status429TooManyRequests);
             }
 
             await _mfaTokenRepo.UpdateAsync(mfaToken);
-            throw new MFAVerificationException("Invalid token.");
+            throw new MFAVerificationException("Invalid token.", MFAErrorCode.InvalidToken);
         }
 
         var expirationInSeconds = _authSessionService.GetAccessTokenExpirationInSeconds();

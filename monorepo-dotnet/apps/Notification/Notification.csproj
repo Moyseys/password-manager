@@ -8,6 +8,11 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <None Update="Templates/**/*.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\libs\SimpleMQ\SimpleMQ.csproj" />
     <ProjectReference Include="..\..\libs\SharedDto\SharedDto.csproj" />
   </ItemGroup>

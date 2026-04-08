@@ -46,6 +46,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             MFAVerificationException mfaEx => new ExceptionDetailBuilder()
                     .SetStatus(mfaEx.StatusCode ?? StatusCodes.Status400BadRequest)
                     .SetDetail(exception.Message)
+                    .SetCode(mfaEx.Code?.ToString())
                     .SetTitle("MFA Verification Failed")
                     .Build(),
             FormatException => new ExceptionDetailBuilder()

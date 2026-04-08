@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,6 @@ using SimpleMq.Attributes;
 using SimpleMq.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SimpleMq.Extensions;
 
 namespace SimpleMq.Services;
 
@@ -22,6 +22,7 @@ public sealed class MQBootstrapService(
     private readonly IConnectionService _connectionService = connectionService;
     private readonly ILogger<MQBootstrapService> _logger = logger;
     private readonly List<IChannel> _consumerChannels = [];
+    private Dictionary _cacheDelegate;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -68,7 +69,12 @@ public sealed class MQBootstrapService(
     private async Task RegisterConsumer(
         IChannel channel, string queueName, bool autoAck, Type handlerType, MethodInfo method)
     {
-        System.Console.WriteLine($"Registering consumer for queue '{queueName}' → {handlerType.Name}.{method.Name} (AutoAck: {autoAck})");
+        _logger.LogInformation(
+            "Registering consumer for queue {Queue} -> {Handler}.{Method} (AutoAck: {AutoAck})",
+            queueName,
+            handlerType.Name,
+            method.Name,
+            autoAck);
         var consumer = new AsyncEventingBasicConsumer(channel);
         consumer.ReceivedAsync += async (_, ea) =>
         {
@@ -76,14 +82,39 @@ public sealed class MQBootstrapService(
             _logger.LogInformation("Received message {MessageId} from queue {Queue}.", messageId, queueName);
             try
             {
-                var message = Encoding.UTF8.GetString(ea.Body.ToArray());
+                var messagePayload = Encoding.UTF8.GetString(ea.Body.ToArray());
 
                 using var scope = _serviceProvider.CreateScope();
-                var instance = scope.ServiceProvider.GetService(handlerType);
+                var instance = scope.ServiceProvider.GetRequiredService(handlerType);
+
+                var methodParameters = method.GetParameters();
+                var invokeArgs = Array.Empty<object?>();
+
+                if (methodParameters.Length == 1)
+                {
+                    var parameterType = methodParameters[0].ParameterType;
+
+                    object? parsedMessage;
+                    if (parameterType == typeof(string))
+                    {
+                        parsedMessage = messagePayload;
+                    }
+                    else
+                    {
+                        parsedMessage = JsonSerializer.Deserialize(messagePayload, parameterType);
+                        if (parsedMessage is null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Failed to deserialize payload for handler parameter type '{parameterType.FullName}'.");
+                        }
+                    }
+
+                    invokeArgs = [parsedMessage];
+                }
 
                 if (instance is not null)
                 {
-                    var result = method.Invoke(instance, [message]);
+                    var result = method.Invoke(instance, invokeArgs);
                     if (result is Task task) await task;
                 }
 
@@ -105,11 +136,15 @@ public sealed class MQBootstrapService(
 
     private async Task<IChannel> RegisterChannel()
     {
-        // Um canal dedicado por consumer type (canal é leve, conexão é cara)
+        // Use one lightweight channel per consumer handler.
         var channel = await _connectionService.OpenChannel();
         await channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
         _consumerChannels.Add(channel);
         return channel;
     }
 
+}
+
+internal class Dictionary
+{
 }

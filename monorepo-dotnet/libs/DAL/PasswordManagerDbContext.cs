@@ -18,13 +18,31 @@ public class PasswordManagerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Dashboard View
+        modelBuilder.Entity<DashboardVaultify>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToView("dashboard_vaultify");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.TotalSecrets).HasColumnName("total_secrets");
+        });
+
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
+            if (entity.GetViewName() is not null)
+            {
+                continue;
+            }
+
             var entityName = entity.GetTableName();
             if (entityName != null) entity.SetTableName(entityName.ToSnakeCase());
             foreach (var property in entity.GetProperties())
             {
-                property.SetColumnName(property.GetColumnName().ToSnakeCase());
+                var columnName = property.GetColumnName();
+                if (columnName != null)
+                {
+                    property.SetColumnName(columnName.ToSnakeCase());
+                }
             }
         }
 
@@ -36,13 +54,5 @@ public class PasswordManagerDbContext : DbContext
         modelBuilder.Entity<MFASettings>()
             .Property(e => e.State)
             .HasConversion<string>();
-        //Dashboard View    
-        modelBuilder.Entity<DashboardVaultify>(entity =>
-        {
-            entity.HasNoKey();
-            entity.ToView("dashboard_vaultify");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.TotalSecrets).HasColumnName("total_secrets");
-        });
     }
 }
