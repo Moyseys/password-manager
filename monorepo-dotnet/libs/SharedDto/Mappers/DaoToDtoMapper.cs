@@ -15,6 +15,8 @@ public static class DaoToDtoMapper
             Title = entity.Title,
             Username = entity.Username,
             Website = entity.Website,
+            Category = entity.Category,
+            Strength = entity.Strength,
             CipherPassword = entity.CipherPassword,
             IV = entity.IV,
             Audit = entity.GetAudit()
@@ -29,6 +31,8 @@ public static class DaoToDtoMapper
             Id = entity.Id,
             Title = entity.Title,
             Username = entity.Username,
+            Category = entity.Category,
+            Strength = entity.Strength,
             Password = string.Empty,
             Audit = entity.GetAudit()
         };

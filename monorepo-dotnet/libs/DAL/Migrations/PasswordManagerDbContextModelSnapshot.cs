@@ -152,6 +152,10 @@ namespace DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("active");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
                     b.Property<byte[]>("CipherPassword")
                         .IsRequired()
                         .HasColumnType("bytea")
@@ -177,6 +181,11 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("bytea")
                         .HasColumnName("iv");
+
+                    b.Property<string>("Strength")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("strength");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -357,6 +366,18 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.Views.DashboardVaultify", b =>
                 {
+                    b.Property<long>("NumberOfStrongSecrets")
+                        .HasColumnType("bigint")
+                        .HasColumnName("number_of_strong_secrets");
+
+                    b.Property<long>("NumberOfWeakSecrets")
+                        .HasColumnType("bigint")
+                        .HasColumnName("number_of_weak_secrets");
+
+                    b.Property<long>("SecurityScore")
+                        .HasColumnType("bigint")
+                        .HasColumnName("security_score");
+
                     b.Property<long>("TotalSecrets")
                         .HasColumnType("bigint")
                         .HasColumnName("total_secrets");
@@ -365,7 +386,7 @@ namespace DAL.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.ToTable("dashboard_vaultify");
+                    b.ToTable((string)null);
 
                     b.ToView("dashboard_vaultify", (string)null);
                 });

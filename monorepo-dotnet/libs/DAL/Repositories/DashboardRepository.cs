@@ -14,8 +14,11 @@ public class DashboardRepository
 
     public async Task<DashboardVaultify?> GetMetricsByUserIdAsync(Guid userId)
     {
-        return await context.DashboardVaultify
+        var result = await context.DashboardVaultify
             .Where(dv => dv.UserId == userId)
             .FirstOrDefaultAsync();
+
+        result?.ParseRecentSecrets();
+        return result;
     }
 }

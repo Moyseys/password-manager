@@ -17,6 +17,7 @@ public class DashboardService(
     {
         var userId = userContext.GetUserIdOrThrow();
         var dv = await dashboardRepository.GetMetricsByUserIdAsync(userId);
-        return dv == null ? new DashboardMetricsDto() : dv.ToDashboardMetricsDto();
+
+        return dv?.ToDashboardMetricsDto() ?? new DashboardMetricsDto();
     }
 }

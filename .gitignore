@@ -1,3 +1,7 @@
+.lscache/
+appsettings.json
+appsettings*.json
+
 # -------------------------
 # Environment / secrets
 # -------------------------

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using DAL.Entities.Commons;
+using DAL.Enums;
 
 namespace DAL.Entities;
 
@@ -14,6 +15,10 @@ public class Secret : BaseEntity<Guid>
 
     [AllowNull]
     public string? Website { get; set; }
+
+    public string? Category { get; set; }
+
+    public SecretStrengthEnum Strength { get; set; }
 
     [Required(ErrorMessage = "Password is required")]
     public required byte[] CipherPassword { get; set; }

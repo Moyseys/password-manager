@@ -1,5 +1,7 @@
+using DAL.Dtos;
 using DAL.Entities;
 using DAL.Entities.Views;
+using DAL.Extensions;
 using Vaultify.Features.Dtos.Reponse;
 using Vaultify.Features.SecretKeyF.Dtos;
 
@@ -29,7 +31,11 @@ public static class DaoToDtoMapper
 	{
 		return new DashboardMetricsDto
 		{
-			TotalSecrets = entity.TotalSecrets
+			TotalSecrets = entity.TotalSecrets,
+			NumberOfStrongSecrets = entity.NumberOfStrongSecrets,
+			NumberOfWeakSecrets = entity.NumberOfWeakSecrets,
+			SecurityScore = entity.SecurityScore,
+			RecentSecrets = entity.RecentSecrets
 		};
 	}
 }

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Account.Setting;
 using Auth.Setting;
 using Auth.Extension;
@@ -22,6 +23,7 @@ builder.Services.AddControllers().AddJsonOptions((options) =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Converte propriedade para camelcase
     options.JsonSerializerOptions.WriteIndented = false; // Produz JSON conpacto
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 //Settings options
