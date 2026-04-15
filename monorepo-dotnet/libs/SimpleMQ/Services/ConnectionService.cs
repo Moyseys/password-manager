@@ -4,10 +4,12 @@ using SimpleMq.Options;
 
 namespace SimpleMq.Services;
 
-public class ConnectionService : IConnectionService
+public sealed class ConnectionService : IConnectionService, IAsyncDisposable
 {
     private readonly ConnectionFactory _factory;
-    public IConnection Connection { get; }
+    private readonly SemaphoreSlim _connectionLock = new(1, 1);
+    private IConnection? _connection;
+    private bool _disposed;
 
     public ConnectionService(MessageBrokerConnectionOptions options)
     {
@@ -19,17 +21,85 @@ public class ConnectionService : IConnectionService
             Password = options.Password,
             AutomaticRecoveryEnabled = options.AutomaticRecoveryEnabled,
         };
-
-        Connection = OpenConnection().GetAwaiter().GetResult();
     }
 
-    public async Task<IConnection> OpenConnection()
+    public async Task<IConnection> OpenConnection(CancellationToken cancellationToken = default)
     {
-        return await _factory.CreateConnectionAsync();
+        ThrowIfDisposed();
+
+        if (_connection is { IsOpen: true })
+        {
+            return _connection;
+        }
+
+        await _connectionLock.WaitAsync(cancellationToken);
+        try
+        {
+            ThrowIfDisposed();
+
+            if (_connection is { IsOpen: true })
+            {
+                return _connection;
+            }
+
+            if (_connection is not null)
+            {
+                try { await _connection.CloseAsync(); }
+                catch { }
+                _connection.Dispose();
+                _connection = null;
+            }
+
+            _connection = await _factory.CreateConnectionAsync(cancellationToken);
+            return _connection;
+        }
+        finally
+        {
+            _connectionLock.Release();
+        }
     }
 
-    public async Task<IChannel> OpenChannel()
+    public async Task<IChannel> OpenChannel(CancellationToken cancellationToken = default)
     {
-        return await Connection.CreateChannelAsync();
+        ThrowIfDisposed();
+
+        var connection = await OpenConnection(cancellationToken);
+        return await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _connectionLock.WaitAsync();
+        try
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            if (_connection is not null)
+            {
+                try { await _connection.CloseAsync(); }
+                catch { }
+
+                _connection.Dispose();
+                _connection = null;
+            }
+        }
+        finally
+        {
+            _connectionLock.Release();
+            _connectionLock.Dispose();
+        }
+    }
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(ConnectionService));
+        }
     }
 }

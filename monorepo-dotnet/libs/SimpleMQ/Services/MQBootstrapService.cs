@@ -1,10 +1,6 @@
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SimpleMq.Attributes;
+using SimpleMq.Dtos;
 using SimpleMq.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -12,139 +8,142 @@ using RabbitMQ.Client.Events;
 namespace SimpleMq.Services;
 
 public sealed class MQBootstrapService(
-    IServiceProvider serviceProvider,
     ISetupMQService setupMQService,
     IConnectionService connectionService,
+    IReadOnlyCollection<ConsumerRegistration> consumerRegistrations,
+    ConsumerMessageDispatcher consumerMessageDispatcher,
     ILogger<MQBootstrapService> logger) : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly ISetupMQService _setupMQService = setupMQService;
     private readonly IConnectionService _connectionService = connectionService;
+    private readonly IReadOnlyCollection<ConsumerRegistration> _consumerRegistrations = consumerRegistrations;
+    private readonly ConsumerMessageDispatcher _consumerMessageDispatcher = consumerMessageDispatcher;
     private readonly ILogger<MQBootstrapService> _logger = logger;
-    private readonly List<IChannel> _consumerChannels = [];
-    private Dictionary _cacheDelegate;
+    private readonly Dictionary<string, IChannel> _queueChannels = new(StringComparer.Ordinal);
+    private readonly List<ConsumerSubscription> _consumerSubscriptions = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Setting up broker topology...");
-        await _setupMQService.SetupBroker(_connectionService.Connection);
+        var connection = await _connectionService.OpenConnection(stoppingToken);
+        await _setupMQService.SetupBroker(connection);
         _logger.LogInformation("Broker topology configured.");
 
-        var types = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a =>
-            {
-                try { return a.GetTypes(); }
-                catch (ReflectionTypeLoadException ex) { return ex.Types.OfType<Type>(); }
-            })
-            .Where(t => typeof(IMessageConsumer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-
-        foreach (var type in types)
+        if (_consumerRegistrations.Count == 0)
         {
-            var methods = type.GetMethods()
-                .Where(m => m.GetCustomAttribute<ConsumerAttribute>() is not null)
-                .ToList();
+            _logger.LogInformation("No consumers discovered. MQ bootstrap will stay idle.");
+            return;
+        }
 
-            if (methods.Count == 0) continue;
+        foreach (var registration in _consumerRegistrations)
+        {
+            stoppingToken.ThrowIfCancellationRequested();
 
-
-            foreach (var method in methods)
-            {
-                var attribute = method.GetCustomAttribute<ConsumerAttribute>()!;
-                await RegisterConsumer(await RegisterChannel(), attribute.QueueName, attribute.AutoAck, type, method);
-            }
+            await RegisterConsumer(
+                channel: await GetOrCreateQueueChannel(registration.QueueName, stoppingToken),
+                registration: registration,
+                cancellationToken: stoppingToken
+            );
         }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Closing consumer channels...");
-        foreach (var channel in _consumerChannels)
+        _logger.LogInformation("Cancelling consumers and closing queue channels...");
+
+        foreach (var subscription in _consumerSubscriptions)
         {
-            try { await channel.CloseAsync(); channel.Dispose(); }
-            catch (Exception ex) { _logger.LogWarning(ex, "Error closing consumer channel."); }
+            try
+            {
+                await subscription.Channel.BasicCancelAsync(subscription.ConsumerTag);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Error cancelling consumer {ConsumerTag} for queue {Queue}.",
+                    subscription.ConsumerTag,
+                    subscription.QueueName
+                );
+            }
+
+            subscription.Consumer.ReceivedAsync -= subscription.Handler;
         }
+
+        foreach (var channel in _queueChannels.Values)
+        {
+            try
+            {
+                await channel.CloseAsync(cancellationToken);
+                channel.Dispose();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error closing consumer channel.");
+            }
+        }
+
         await base.StopAsync(cancellationToken);
     }
 
     private async Task RegisterConsumer(
-        IChannel channel, string queueName, bool autoAck, Type handlerType, MethodInfo method)
+        IChannel channel,
+        ConsumerRegistration registration,
+        CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Registering consumer for queue {Queue} -> {Handler}.{Method} (AutoAck: {AutoAck})",
-            queueName,
-            handlerType.Name,
-            method.Name,
-            autoAck);
+            "Registering consumer for queue {Queue} -> {Handler}.{Method} (AutoAck: {AutoAck}, RoutingKey: {RoutingKey})",
+            registration.QueueName,
+            registration.HandlerType.Name,
+            registration.MethodName,
+            registration.AutoAck,
+            registration.RoutingKey ?? "<any>");
+
         var consumer = new AsyncEventingBasicConsumer(channel);
-        consumer.ReceivedAsync += async (_, ea) =>
-        {
-            var messageId = ea.BasicProperties.MessageId ?? ea.DeliveryTag.ToString();
-            _logger.LogInformation("Received message {MessageId} from queue {Queue}.", messageId, queueName);
-            try
-            {
-                var messagePayload = Encoding.UTF8.GetString(ea.Body.ToArray());
+        AsyncEventHandler<BasicDeliverEventArgs> onMessage = async (_, ea) =>
+            await _consumerMessageDispatcher.HandleAsync(channel, registration, ea, cancellationToken);
+        consumer.ReceivedAsync += onMessage;
 
-                using var scope = _serviceProvider.CreateScope();
-                var instance = scope.ServiceProvider.GetRequiredService(handlerType);
+        var consumerTag = await channel.BasicConsumeAsync(
+            registration.QueueName,
+            autoAck: registration.AutoAck,
+            consumer: consumer,
+            cancellationToken: cancellationToken
+        );
 
-                var methodParameters = method.GetParameters();
-                var invokeArgs = Array.Empty<object?>();
+        _consumerSubscriptions.Add(new ConsumerSubscription(
+            QueueName: registration.QueueName,
+            ConsumerTag: consumerTag,
+            Channel: channel,
+            Consumer: consumer,
+            Handler: onMessage
+        ));
 
-                if (methodParameters.Length == 1)
-                {
-                    var parameterType = methodParameters[0].ParameterType;
-
-                    object? parsedMessage;
-                    if (parameterType == typeof(string))
-                    {
-                        parsedMessage = messagePayload;
-                    }
-                    else
-                    {
-                        parsedMessage = JsonSerializer.Deserialize(messagePayload, parameterType);
-                        if (parsedMessage is null)
-                        {
-                            throw new InvalidOperationException(
-                                $"Failed to deserialize payload for handler parameter type '{parameterType.FullName}'.");
-                        }
-                    }
-
-                    invokeArgs = [parsedMessage];
-                }
-
-                if (instance is not null)
-                {
-                    var result = method.Invoke(instance, invokeArgs);
-                    if (result is Task task) await task;
-                }
-
-                if (!autoAck)
-                    await channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
-
-                _logger.LogInformation("Message {MessageId} processed successfully.", messageId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing message {MessageId} on queue {Queue}. Dead-lettering.", messageId, queueName);
-                await channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-            }
-        };
-
-        await channel.BasicConsumeAsync(queueName, autoAck: autoAck, consumer: consumer);
-        _logger.LogInformation("Subscribed to queue {Queue} → {Method}.", queueName, method.Name);
+        _logger.LogInformation(
+            "Subscribed to queue {Queue} -> {Method} with consumer tag {ConsumerTag}.",
+            registration.QueueName,
+            registration.MethodName,
+            consumerTag
+        );
     }
 
-    private async Task<IChannel> RegisterChannel()
+    private async Task<IChannel> GetOrCreateQueueChannel(string queueName, CancellationToken cancellationToken)
     {
-        // Use one lightweight channel per consumer handler.
-        var channel = await _connectionService.OpenChannel();
-        await channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-        _consumerChannels.Add(channel);
+        if (_queueChannels.TryGetValue(queueName, out var existingChannel))
+        {
+            return existingChannel;
+        }
+
+        var channel = await _connectionService.OpenChannel(cancellationToken);
+        await channel.BasicQosAsync(
+            prefetchSize: 0,
+            prefetchCount: 1,
+            global: false,
+            cancellationToken: cancellationToken
+        );
+
+        _queueChannels[queueName] = channel;
         return channel;
     }
 
-}
-
-internal class Dictionary
-{
 }

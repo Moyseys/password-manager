@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using SimpleMq.Config;
+using SimpleMq.Dtos;
 using SimpleMq.Interfaces;
 using SimpleMq.Options;
 using SimpleMq.Services;
@@ -16,11 +17,13 @@ public static class SimpleMQExtensions
         IConfiguration configuration,
         IExchangeConfig exchangeConfig,
         IQueueConfig queueConfig,
-        IBindConfig bindConfig
+        IBindConfig bindConfig,
+        params Assembly[] consumerAssemblies
     )
     {
         services.AddOptions<MessageBrokerConnectionOptions>()
-            .Bind(configuration.GetSection(nameof(MessageBrokerConnectionOptions)));
+            .Bind(configuration.GetSection(nameof(MessageBrokerConnectionOptions)))
+            .ValidateOnStart();
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<MessageBrokerConnectionOptions>>().Value);
 
         services.AddSingleton(exchangeConfig);
@@ -29,19 +32,20 @@ public static class SimpleMQExtensions
 
         services.AddSingleton<ISetupMQService, SetupMQService>();
         services.AddSingleton<IConnectionService, ConnectionService>();
+        services.AddSingleton<ConsumerMessageDispatcher>();
 
-        var consumerTypes = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a =>
-            {
-                try { return a.GetTypes(); }
-                catch (ReflectionTypeLoadException ex) { return ex.Types.OfType<Type>(); }
-            })
-            .Where(t => typeof(IMessageConsumer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+        var assembliesToScan = consumerAssemblies.Length > 0
+            ? consumerAssemblies
+            : AppDomain.CurrentDomain.GetAssemblies();
 
-        foreach (var consumerType in consumerTypes)
+        var buildResult = ConsumerRegistrationBuilder.Build(assembliesToScan);
+
+        foreach (var consumerType in buildResult.ConsumerTypes)
         {
             services.AddScoped(consumerType);
         }
+
+        services.AddSingleton(buildResult.Registrations);
 
         services.AddHostedService<MQBootstrapService>();
 

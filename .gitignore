@@ -1,8 +1,9 @@
-.lscache/
-appsettings.json
-appsettings*.json
+**.sh
+monorepo-dotnet/libs/DAL/Migrations
+**/*.lscache
 
 # -------------------------
+
 # Environment / secrets
 # -------------------------
 # Do NOT commit environment files with secrets. Keep local copies only.
@@ -41,7 +42,6 @@ bin/
 obj/
 **/bin/
 **/obj/
-
 # Visual Studio
 .vs/
 *.user

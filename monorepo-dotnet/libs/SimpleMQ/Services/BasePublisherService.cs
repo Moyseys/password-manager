@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using RabbitMQ.Client;
 using SimpleMq.Interfaces;
+using SimpleMq.Options;
 
 namespace SimpleMq.Services;
 
@@ -10,55 +11,34 @@ public abstract class BasePublisherService(IConnectionService connectionService)
     protected async Task PublishMessageAsync<T>(
         string exchange,
         string routingKey,
-        T message)
+        T message,
+        PublishMessageOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
-        var messageJson = JsonSerializer.Serialize(message);
+        options ??= new PublishMessageOptions();
+
+        var messageJson = JsonSerializer.Serialize(message, options.SerializerOptions);
         var body = Encoding.UTF8.GetBytes(messageJson);
 
         var proprieties = new BasicProperties();
-        proprieties.Persistent = true;
-        proprieties.MessageId = Guid.NewGuid().ToString();
-        proprieties.ContentType = "application/json";
-        proprieties.ContentEncoding = "utf-8";
+        proprieties.Persistent = options.Persistent;
+        proprieties.MessageId = string.IsNullOrWhiteSpace(options.MessageId)
+            ? Guid.NewGuid().ToString()
+            : options.MessageId;
+        proprieties.CorrelationId = options.CorrelationId;
+        proprieties.ContentType = options.ContentType;
+        proprieties.ContentEncoding = options.ContentEncoding;
+        proprieties.Headers = options.Headers;
 
-        await using var channel = await connectionService.OpenChannel();
+        await using var channel = await connectionService.OpenChannel(cancellationToken);
         await channel.BasicPublishAsync(
             exchange: exchange,
             routingKey: routingKey,
-            mandatory: false,
+            mandatory: options.Mandatory,
             basicProperties: proprieties,
-            body: body
+            body: body,
+            cancellationToken: cancellationToken
         );
-
-    }
-
-    protected async Task PublishMessageAsync<T>(
-        string exchange,
-        string routingKey,
-        bool mandatory,
-        T message,
-        Dictionary<string, object>? headers)
-    {
-        var messageJson = JsonSerializer.Serialize(message);
-        var body = Encoding.UTF8.GetBytes(messageJson);
-
-        var properties = new BasicProperties
-        {
-            Headers = headers,
-            Persistent = true,
-            MessageId = Guid.NewGuid().ToString(),
-            ContentType = "application/json",
-            ContentEncoding = "utf-8"
-        };
-
-        await using var channel = await connectionService.OpenChannel();
-        await channel.BasicPublishAsync(
-           exchange: exchange,
-           routingKey: routingKey,
-           mandatory: mandatory,
-           basicProperties: properties,
-           body: body
-       );
 
     }
 }
