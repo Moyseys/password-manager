@@ -55,6 +55,7 @@ public class EmailService(ILogger<EmailService> logger, EmailSettingsOptions ema
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email to {To}", emailDto.To);
+            throw;
         }
     }
 }
