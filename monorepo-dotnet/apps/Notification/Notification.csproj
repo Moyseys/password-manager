@@ -17,8 +17,8 @@
     <ProjectReference Include="..\..\libs\SharedDto\SharedDto.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="4.15.1" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.5" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.7" />
   </ItemGroup>
 
 </Project>
