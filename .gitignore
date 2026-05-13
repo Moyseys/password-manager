@@ -70,3 +70,5 @@ devops/server/certs/**/*.pem
 devops/server/certs/**/*.key
 devops/registry/certs/**/*.pem
 devops/registry/certs/**/*.key
+.aider*
+ollama*
