@@ -10,6 +10,7 @@ using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Vaultify.Features.SecretKeyF;
 using Vaultify.Features.Secrets;
+using Vaultify.Features.Categories;
 using Scalar.AspNetCore;
 using Vaultify.Features.Dashboard;
 using DAL.Interceptors;
@@ -68,12 +69,14 @@ builder.Services.AddDbContext<PasswordManagerDbContext>((ServiceProvider, option
 //Repositories
 builder.Services.AddScoped<SecretRepository>();
 builder.Services.AddScoped<SecretKeyRepository>();
+builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<UserResitory>();
 builder.Services.AddScoped<DashboardRepository>();
 
 //Services
 builder.Services.AddScoped<SecretService>();
 builder.Services.AddScoped<SecretKeyService>();
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<DashboardService>();
 
 //Exception
@@ -83,6 +86,18 @@ builder.Services.AddProblemDetails();
 //Auth
 builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie);
 
+//CORS (dev: reflete a origem e permite credenciais)
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 //OpenApi
 builder.Services.AddOpenApi();
 
@@ -91,8 +106,7 @@ var app = builder.Build();
 
 //Middlewares
 app.UseExceptionHandler();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCors();
 app.MapControllers();
 
 app.MapScalarApiReference("doc");

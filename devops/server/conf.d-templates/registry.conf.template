@@ -9,6 +9,9 @@ server {
     include conf.d/tls-registry.conf;
     include conf.d/ssl-common.conf;
 
+    allow ${REGISTRY_ALLOWED_IP};
+    deny all;
+
     location /v2/ {
         proxy_pass http://pass_registry;
         include conf.d/proxy-headers.conf;

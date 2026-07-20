@@ -21,6 +21,8 @@ public class User : BaseEntity<Guid>
 
     public ICollection<Secret>? Secrets { get; set; }
 
+    public ICollection<Category>? Categories { get; set; }
+
     public SecretKey? SecretKey { get; set; }
     public ICollection<MFASettings>? MFASettings { get; set; }
 }

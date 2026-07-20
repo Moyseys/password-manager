@@ -20,7 +20,7 @@ services:
       OTEL_METRICS_EXPORTER: none
       REGISTRY_HTTP_SECRET: ${REGISTRY_HTTP_SECRET}
     ports:
-      - "${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
+      - "127.0.0.1:${REGISTRY_PORT}:${REGISTRY_INTERNAL_PORT}"
     volumes:
       - ./registry/registry/data:/var/lib/registry
     logging: *default-logging
@@ -66,6 +66,7 @@ services:
       - REGISTRY_INTERNAL_PORT=${REGISTRY_INTERNAL_PORT}
       - GW_DOMAIN=${GW_DOMAIN}
       - REGISTRY_DOMAIN=${REGISTRY_DOMAIN}
+      - REGISTRY_ALLOWED_IP=${REGISTRY_ALLOWED_IP}
       - CERT_PATH_HOST=${CERT_PATH_HOST}
     volumes:
       - ${CERT_BASE}:${CERT_BASE}:ro

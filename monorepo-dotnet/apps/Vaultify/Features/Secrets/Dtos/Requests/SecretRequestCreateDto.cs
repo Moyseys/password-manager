@@ -13,7 +13,8 @@ public class SecretRequestCreateDto
 
     public string? Website { get; set; }
 
-    public string? Category { get; set; }
+    /// <summary>Optional. When omitted, the secret is left without a category.</summary>
+    public Guid? CategoryId { get; set; }
 
     public SecretStrengthEnum Strength { get; set; } = SecretStrengthEnum.Weak;
 

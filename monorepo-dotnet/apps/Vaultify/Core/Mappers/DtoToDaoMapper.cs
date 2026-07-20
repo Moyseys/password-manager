@@ -30,14 +30,14 @@ public static class DtoToDaoMapper
         }
     }
 
-    public static Secret ToSecretEntity(this SecretRequestCreateDto dto, Guid userId)
+    public static Secret ToSecretEntity(this SecretRequestCreateDto dto, Guid userId, Guid? categoryId)
     {
         return new Secret
         {
             Title = dto.Title,
             Username = dto.Username,
             Website = dto.Website,
-            Category = dto.Category,
+            CategoryId = categoryId,
             Strength = dto.Strength,
             CipherPassword = Convert.FromBase64String(dto.CipherPassword),
             IV = Convert.FromBase64String(dto.IV),

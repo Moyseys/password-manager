@@ -5,27 +5,31 @@ using DAL.Repositories;
 using SharedDto.Dtos;
 using SharedDto.Mappers;
 using Vaultify.Core.Mappers;
+using Vaultify.Features.Categories;
 using Vaultify.Features.Secrets.Dtos.Requests;
 
 namespace Vaultify.Features.Secrets;
 
 public class SecretService(
     SecretRepository secretRepository,
+    CategoryService categoryService,
     UserContext userContext,
     ILogger<SecretService> logger
     )
 {
     private readonly SecretRepository _secretRepository = secretRepository;
+    private readonly CategoryService _categoryService = categoryService;
     private readonly UserContext _userContext = userContext;
     private readonly ILogger<SecretService> _logger = logger;
 
     public async Task CreateSecret(SecretRequestCreateDto payload)
     {
         var userId = _userContext.GetUserIdOrThrow();
-        await _secretRepository.AddAsync(payload.ToSecretEntity(userId));
+        var categoryId = await _categoryService.ResolveCategoryId(payload.CategoryId, userId);
+        await _secretRepository.AddAsync(payload.ToSecretEntity(userId, categoryId));
     }
 
-    public async Task<PageableDto<SecretResponseListDto>> ListSecrets(PaginationDto pagination, string? search)
+    public async Task<PageableDto<SecretResponseListDto>> ListSecrets(PaginationDto pagination, string? search, Guid? categoryId)
     {
         var userId = _userContext.GetUserIdOrThrow();
         _logger.LogInformation("[ListSecrets] UserId: {UserId}", userId);
@@ -34,7 +38,8 @@ public class SecretService(
             userId,
             s => s.ToSecretReponseListDto(),
             pagination,
-            search
+            search,
+            categoryId
         );
     }
 
@@ -51,6 +56,9 @@ public class SecretService(
         var secret = await GetUserSecret(_userContext.UserId, secretId);
 
         _logger.LogInformation("[UpdateSecret] Updating secret {SecretId} for user {UserId}", secretId, _userContext.UserId);
+
+        if (payload.CategoryId.HasValue)
+            secret.CategoryId = await _categoryService.ResolveCategoryId(payload.CategoryId, secret.UserId);
 
         secret.ToSecretRequestUpdateDto(payload);
         await _secretRepository.UpdateSecretAsync(secret);

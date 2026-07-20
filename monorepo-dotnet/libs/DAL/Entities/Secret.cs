@@ -16,7 +16,9 @@ public class Secret : BaseEntity<Guid>
     [AllowNull]
     public string? Website { get; set; }
 
-    public string? Category { get; set; }
+    public Guid? CategoryId { get; set; }
+
+    public Category? Category { get; set; }
 
     public SecretStrengthEnum Strength { get; set; }
 

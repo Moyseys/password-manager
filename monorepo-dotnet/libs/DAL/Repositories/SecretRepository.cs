@@ -34,18 +34,25 @@ public class SecretRepository
 
     public async Task<Secret?> GetSecretByIdAndUserId(Guid userId, Guid secretId)
     {
-        return await _context.Secret.Where(s => s.UserId.Equals(userId) && s.Id.Equals(secretId)).FirstOrDefaultAsync();
+        return await _context.Secret
+            .Include(s => s.Category)
+            .Where(s => s.UserId.Equals(userId) && s.Id.Equals(secretId))
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<PageableDto<T>> GetSecretsPagedByUserId<T>(Guid userId, Expression<Func<Secret, T>> projection, PaginationDto pagination, string? search = null)
+    public async Task<PageableDto<T>> GetSecretsPagedByUserId<T>(Guid userId, Expression<Func<Secret, T>> projection, PaginationDto pagination, string? search = null, Guid? categoryId = null)
     {
         IQueryable<Secret> query = _context.Secret
             .AsNoTracking()
+            .Include(s => s.Category)
             .Where(s => s.UserId == userId && s.Active)
             .OrderByDescending(s => s.CreatedAt);
 
         if (!string.IsNullOrEmpty(search))
             query = query.Where(s => s.Title.ToLower().Contains(search.ToLower()));
+
+        if (categoryId.HasValue)
+            query = query.Where(s => s.CategoryId == categoryId.Value);
 
         return await query.WithPagination(projection, pagination);
     }

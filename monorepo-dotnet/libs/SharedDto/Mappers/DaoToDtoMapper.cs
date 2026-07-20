@@ -15,7 +15,8 @@ public static class DaoToDtoMapper
             Title = entity.Title,
             Username = entity.Username,
             Website = entity.Website,
-            Category = entity.Category,
+            CategoryId = entity.CategoryId,
+            Category = entity.Category.ToSecretCategoryDto(),
             Strength = entity.Strength,
             CipherPassword = entity.CipherPassword,
             IV = entity.IV,
@@ -24,6 +25,18 @@ public static class DaoToDtoMapper
     }
 
 
+    public static SecretCategoryDto? ToSecretCategoryDto(this Category? category)
+    {
+        if (category is null) return null;
+
+        return new SecretCategoryDto
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Color = category.Color
+        };
+    }
+
     public static SecretResponseListDto ToSecretReponseListDto(this Secret entity)
     {
         return new SecretResponseListDto()
@@ -31,7 +44,8 @@ public static class DaoToDtoMapper
             Id = entity.Id,
             Title = entity.Title,
             Username = entity.Username,
-            Category = entity.Category,
+            CategoryId = entity.CategoryId,
+            Category = entity.Category.ToSecretCategoryDto(),
             Strength = entity.Strength,
             Password = string.Empty,
             Audit = entity.GetAudit()

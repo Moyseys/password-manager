@@ -11,7 +11,6 @@ public static class DtoToDaoMapper
         if (dto.Title != null) entity.Title = dto.Title;
         if (dto.Username != null) entity.Username = dto.Username;
         if (dto.Website != null) entity.Website = dto.Website;
-        if (dto.Category != null) entity.Category = dto.Category;
         if (dto.Strength != null) entity.Strength = dto.Strength.Value;
         if (dto.CipherPassword != null) entity.CipherPassword = dto.CipherPassword;
         if (dto.IV != null) entity.IV = dto.IV;
@@ -36,7 +35,6 @@ public static class DtoToDaoMapper
         if (dto.Title != null) entity.Title = dto.Title;
         if (dto.Username != null) entity.Username = dto.Username;
         if (dto.Website != null) entity.Website = dto.Website;
-        if (dto.Category != null) entity.Category = dto.Category;
         if (dto.Strength != null) entity.Strength = dto.Strength.Value;
         if (dto.CipherPassword != null) entity.CipherPassword = dto.CipherPassword;
         if (dto.IV != null) entity.IV = dto.IV;

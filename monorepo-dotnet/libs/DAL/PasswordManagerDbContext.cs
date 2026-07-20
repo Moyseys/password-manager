@@ -12,6 +12,7 @@ public class PasswordManagerDbContext : DbContext
     public DbSet<MFASettings> MFASettings { get; set; }
     public DbSet<MFAToken> MFATokens { get; set; }
     public DbSet<Secret> Secret { get; set; }
+    public DbSet<Category> Category { get; set; }
     public DbSet<SecretKey> SecretKey { get; set; }
     public DbSet<DashboardVaultify> DashboardVaultify { get; set; }
 
@@ -65,5 +66,25 @@ public class PasswordManagerDbContext : DbContext
         modelBuilder.Entity<Secret>()
             .Property(s => s.Strength)
             .HasConversion<string>();
+
+        //Category: unique name per user (only among active categories)
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasIndex(c => new { c.UserId, c.Name })
+                .IsUnique()
+                .HasFilter("active");
+
+            entity.HasOne(c => c.User)
+                .WithMany(u => u.Categories)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //Secret -> Category: block deleting a category still referenced by secrets
+        modelBuilder.Entity<Secret>()
+            .HasOne(s => s.Category)
+            .WithMany(c => c.Secrets)
+            .HasForeignKey(s => s.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

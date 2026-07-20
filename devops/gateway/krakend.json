@@ -8,7 +8,8 @@
       "allow_origins": [
         "http://local.pass.moyseys.com:4200",
         "https://local.pass.moyseys.com:4200",
-        "https://pass.moyseys.com"
+        "https://pass.moyseys.com.br",
+        "http://localhost:4200"
       ],
       "allow_methods": [
         "GET",
@@ -240,6 +241,62 @@
           "host": ["http://vaultify:8080"],
           "url_pattern": "/api/v1/secret-key",
           "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/vaultify/v1/categories",
+      "method": "GET",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/categories",
+          "method": "GET"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/vaultify/v1/categories",
+      "method": "POST",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/categories",
+          "method": "POST"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/vaultify/v1/categories/{categoryId}",
+      "method": "PATCH",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/categories/{categoryId}",
+          "method": "PATCH"
+        }
+      ],
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/vaultify/v1/categories/{categoryId}",
+      "method": "DELETE",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [
+        {
+          "host": ["http://vaultify:8080"],
+          "url_pattern": "/api/v1/categories/{categoryId}",
+          "method": "DELETE"
         }
       ],
       "output_encoding": "no-op"

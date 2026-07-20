@@ -17,10 +17,68 @@ namespace DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("DAL.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("color");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique()
+                        .HasFilter("active");
+
+                    b.ToTable("category");
+                });
 
             modelBuilder.Entity("DAL.Entities.MFASettings", b =>
                 {
@@ -152,9 +210,9 @@ namespace DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("active");
 
-                    b.Property<string>("Category")
-                        .HasColumnType("text")
-                        .HasColumnName("category");
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
 
                     b.Property<byte[]>("CipherPassword")
                         .IsRequired()
@@ -214,6 +272,8 @@ namespace DAL.Migrations
                         .HasColumnName("website");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("UserId");
 
@@ -374,6 +434,10 @@ namespace DAL.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("number_of_weak_secrets");
 
+                    b.Property<string>("RecentSecretsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("recent_secrets");
+
                     b.Property<long>("SecurityScore")
                         .HasColumnType("bigint")
                         .HasColumnName("security_score");
@@ -388,7 +452,18 @@ namespace DAL.Migrations
 
                     b.ToTable((string)null);
 
-                    b.ToView("dashboard_vaultify", (string)null);
+                    b.ToView("dashboard_vaultify", "public");
+                });
+
+            modelBuilder.Entity("DAL.Entities.Category", b =>
+                {
+                    b.HasOne("DAL.Entities.User", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DAL.Entities.MFASettings", b =>
@@ -415,11 +490,18 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.Secret", b =>
                 {
+                    b.HasOne("DAL.Entities.Category", "Category")
+                        .WithMany("Secrets")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DAL.Entities.User", "User")
                         .WithMany("Secrets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("User");
                 });
@@ -435,6 +517,11 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DAL.Entities.Category", b =>
+                {
+                    b.Navigation("Secrets");
+                });
+
             modelBuilder.Entity("DAL.Entities.MFASettings", b =>
                 {
                     b.Navigation("Tokens");
@@ -442,6 +529,8 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.User", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("MFASettings");
 
                     b.Navigation("SecretKey");
