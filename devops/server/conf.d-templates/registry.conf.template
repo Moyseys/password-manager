@@ -10,6 +10,7 @@ server {
     include conf.d/ssl-common.conf;
 
     allow ${REGISTRY_ALLOWED_IP};
+    allow 127.0.0.1;
     deny all;
 
     location /v2/ {

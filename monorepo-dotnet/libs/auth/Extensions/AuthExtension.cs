@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Auth.Services;
 using Auth.Setting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -42,19 +43,29 @@ public static class AuthExtension
                     try
                     {
                         var claims = TokenService.ValidateToken(jwtSettings, token);
-                        if (claims != null) context.Token = token;
+                        if (claims != null)
+                        {
+                            context.Token = token;
+                        }
+                        else
+                        {
+                            DeleteAuthCookie(context.HttpContext, jwtCookieName);
+                        }
                     }
                     catch (SecurityTokenExpiredException ex)
                     {
+                        DeleteAuthCookie(context.HttpContext, jwtCookieName);
                         logger?.LogWarning("Token expired: {Message}", ex.Message);
                         throw new UnauthorizedAccessException("Token expired. Please log in again.");
                     }
                     catch (SecurityTokenException ex)
                     {
+                        DeleteAuthCookie(context.HttpContext, jwtCookieName);
                         logger?.LogWarning("Invalid token: {Message}", ex.Message);
                     }
                     catch (Exception ex)
                     {
+                        DeleteAuthCookie(context.HttpContext, jwtCookieName);
                         logger?.LogError(ex, "Error in AuthExtension: {Message}", ex.Message);
                     }
 
@@ -85,6 +96,11 @@ public static class AuthExtension
                 }
             };
         });
+    }
+
+    private static void DeleteAuthCookie(HttpContext context, string jwtCookieName)
+    {
+        context.Response.Cookies.Delete(jwtCookieName, new CookieOptions { Path = "/" });
     }
 
     private static T GetClainmValue<T>(ClaimsPrincipal claimsPrincipal, string claimType)

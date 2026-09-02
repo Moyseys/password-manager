@@ -24,6 +24,7 @@ public class AuthCookieService(
             HttpOnly = true,
             Secure = context.Request.IsHttps,
             SameSite = ResolveSameSiteMode(),
+            Path = "/",
             Expires = DateTime.UtcNow.AddSeconds(expirationInSeconds)
         };
 
@@ -35,7 +36,7 @@ public class AuthCookieService(
         var context = _httpContextAccessor.HttpContext
             ?? throw new ArgumentNullException(nameof(_httpContextAccessor), "HttpContext is null.");
 
-        context.Response.Cookies.Delete(_cookiesSettings.AuthCookie);
+        context.Response.Cookies.Delete(_cookiesSettings.AuthCookie, new CookieOptions { Path = "/" });
     }
 
     private SameSiteMode ResolveSameSiteMode()
