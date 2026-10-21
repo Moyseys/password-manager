@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Account.Setting;
 using Auth.Setting;
 using Auth.Extension;
+using Microsoft.AspNetCore.Authorization;
 using Core.Contexts;
 using Core.Exceptions;
 using DAL;
@@ -86,6 +87,14 @@ builder.Services.AddProblemDetails();
 //Auth
 builder.Services.AddAuthenticationConfig(jwtSettings, cookieSettings.AuthCookie);
 
+//Authorization: exige usuário autenticado por padrão em TODOS os endpoints
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 //CORS (dev: reflete a origem e permite credenciais)
 builder.Services.AddCors(options =>
 {
@@ -107,6 +116,8 @@ var app = builder.Build();
 //Middlewares
 app.UseExceptionHandler();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.MapScalarApiReference("doc");
